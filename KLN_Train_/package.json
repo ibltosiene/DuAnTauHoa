@@ -1,0 +1,30 @@
+{
+  "name": "klntrain-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hệ thống KLN Train — kiến trúc microservice (KLN_BE: api-gateway + 7 service) phục vụ 3 frontend (KLN_FR: FR_User, FR_Dispatcher, FR_Admin)",
+  "workspaces": [
+    "KLN_BE/shared",
+    "KLN_BE/api-gateway",
+    "KLN_BE/services/*"
+  ],
+  "scripts": {
+    "dev:gateway": "npm --prefix KLN_BE/api-gateway run dev",
+    "dev:auth": "npm --prefix KLN_BE/services/auth-service run dev",
+    "dev:railway": "npm --prefix KLN_BE/services/railway-service run dev",
+    "dev:booking": "npm --prefix KLN_BE/services/booking-service run dev",
+    "dev:customer": "npm --prefix KLN_BE/services/customer-service run dev",
+    "dev:payment": "npm --prefix KLN_BE/services/payment-service run dev",
+    "dev:notification": "npm --prefix KLN_BE/services/notification-service run dev",
+    "dev:report": "npm --prefix KLN_BE/services/report-service run dev",
+    "dev:user": "npm --prefix KLN_FR/FR_User run dev",
+    "dev:dispatcher": "npm --prefix KLN_FR/FR_Dispatcher run dev",
+    "dev:admin": "npm --prefix KLN_FR/FR_Admin start",
+    "dev:backend": "concurrently -n GATEWAY,AUTH,RAILWAY,BOOKING,CUSTOMER,PAYMENT,NOTIF,REPORT -c cyan,red,white,gray,grey,magentaBright,cyanBright,blueBright \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:railway\" \"npm run dev:booking\" \"npm run dev:customer\" \"npm run dev:payment\" \"npm run dev:notification\" \"npm run dev:report\"",
+    "dev": "concurrently -n GATEWAY,AUTH,RAILWAY,BOOKING,CUSTOMER,PAYMENT,NOTIF,REPORT,USER,DISPATCHER,ADMIN -c cyan,red,white,gray,grey,magentaBright,cyanBright,blueBright,green,yellow,magenta \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:railway\" \"npm run dev:booking\" \"npm run dev:customer\" \"npm run dev:payment\" \"npm run dev:notification\" \"npm run dev:report\" \"npm run dev:user\" \"npm run dev:dispatcher\" \"npm run dev:admin\"",
+    "install:all": "npm install && npm --prefix KLN_FR/FR_User install && npm --prefix KLN_FR/FR_Dispatcher install && npm --prefix KLN_FR/FR_Admin install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

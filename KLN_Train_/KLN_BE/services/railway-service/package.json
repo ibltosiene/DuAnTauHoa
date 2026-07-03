@@ -1,0 +1,19 @@
+{
+  "name": "@kln/railway-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Railway Operation Service — Ga/Tàu/Toa/Ghế/Lịch chạy/Chuyến/Điều phối/BieuGia",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "@kln/shared": "*",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

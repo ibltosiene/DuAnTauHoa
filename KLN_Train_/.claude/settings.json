@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node \"C:\\\\Users\\\\MSI\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--Nam3-Ki2-Nam3-CongNghePhanMem-klnTrain--nogc-new--1--klnTrain--nogc-new\\\\3c0cff89-621d-4e8b-b335-99981f9501e0\\\\scratchpad\\\\check-admin.js\")",
+      "Read(//c/Users/MSI/AppData/Local/Temp/**)",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\Nam3\\\\Ki2_Nam3\\\\CongNghePhanMem\\\\klnTrain_-nogc_new \\(1\\)\\\\klnTrain_-nogc_new\\\\DuAnTauHoaCom\\\\backend\" -Recurse -File | Select-Object -First 50 | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\Nam3\\\\Ki2_Nam3\\\\CongNghePhanMem\\\\klnTrain_-nogc_new \\(1\\)\\\\klnTrain_-nogc_new\\\\DuAnTauHoaCom\\\\backend\\\\src\" -Recurse -File | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\Nam3\\\\Ki2_Nam3\\\\CongNghePhanMem\\\\klnTrain_-nogc_new \\(1\\)\\\\klnTrain_-nogc_new\\\\DuAnTauHoaCom\\\\frontend\\\\src\" -Recurse -File | Where-Object { $_.Extension -match '\\\\.\\(jsx?|tsx?\\)$' } | Select-Object -First 100 | ForEach-Object { $_.FullName })"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@kln/booking-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Booking Service — DonDatVe, Ve, TamGiuGhe, DoiVe, ChinhSachGia, ChinhSachHuy, KhuyenMai",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "@kln/shared": "*",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
