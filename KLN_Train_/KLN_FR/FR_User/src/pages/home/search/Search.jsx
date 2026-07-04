@@ -35,6 +35,8 @@ const Search = () => {
   const [stations, setStations]             = useState([])
   const [fromStation, setFromStation]       = useState('')
   const [toStation, setToStation]           = useState('')
+  const [fromSearchText, setFromSearchText] = useState('')
+  const [toSearchText, setToSearchText]     = useState('')
   const [departureDate, setDepartureDate]   = useState('')
   const [returnDate, setReturnDate]         = useState('')
   const [tripType, setTripType]             = useState('one-way')
@@ -105,11 +107,20 @@ const Search = () => {
       <div className="relative flex flex-col gap-3 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:items-center sm:gap-2">
         <div className="relative">
           <FaTrainSubway className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 z-10" />
-          <select value={fromStation} onChange={(e) => setFromStation(e.target.value)}
-            className="h-11 w-full rounded-lg border border-amber-200 bg-white pl-9 pr-3 text-sm text-neutral-800 outline-none transition-colors hover:border-white focus:ring-2 focus:ring-[#FFD15A] cursor-pointer appearance-none">
-            <option value="" disabled>Ga đi</option>
-            {fromOptions.map((s) => <option key={s.id_ga} value={s.ten_ga}>{s.ten_ga}</option>)}
-          </select>
+          <input
+            list="from-station-list"
+            placeholder="Ga đi"
+            value={fromSearchText}
+            onChange={(e) => {
+              setFromSearchText(e.target.value)
+              const found = stations.find(s => s.ten_ga === e.target.value)
+              setFromStation(found ? found.ten_ga : '')
+            }}
+            className="h-11 w-full rounded-lg border border-amber-200 bg-white pl-9 pr-3 text-sm text-neutral-800 outline-none transition-colors hover:border-white focus:ring-2 focus:ring-[#FFD15A]"
+          />
+          <datalist id="from-station-list">
+            {fromOptions.map(s => <option key={s.id_ga} value={s.ten_ga} />)}
+          </datalist>
         </div>
         <button type="button" onClick={handleSwapStation}
           className="absolute left-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-[#8C1D19] shadow transition-all hover:bg-white hover:scale-110 sm:static sm:translate-y-0 sm:rounded-full sm:h-9 sm:w-9">
@@ -117,11 +128,20 @@ const Search = () => {
         </button>
         <div className="relative">
           <FaTrainSubway className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 z-10" />
-          <select value={toStation} onChange={(e) => setToStation(e.target.value)}
-            className="h-11 w-full rounded-lg border border-amber-200 bg-white pl-9 pr-3 text-sm text-neutral-800 outline-none transition-colors hover:border-white focus:ring-2 focus:ring-[#FFD15A] cursor-pointer appearance-none">
-            <option value="" disabled>Ga đến</option>
-            {toOptions.map((s) => <option key={s.id_ga} value={s.ten_ga}>{s.ten_ga}</option>)}
-          </select>
+          <input
+            list="to-station-list"
+            placeholder="Ga đến"
+            value={toSearchText}
+            onChange={(e) => {
+              setToSearchText(e.target.value)
+              const found = stations.find(s => s.ten_ga === e.target.value)
+              setToStation(found ? found.ten_ga : '')
+            }}
+            className="h-11 w-full rounded-lg border border-amber-200 bg-white pl-9 pr-3 text-sm text-neutral-800 outline-none transition-colors hover:border-white focus:ring-2 focus:ring-[#FFD15A]"
+          />
+          <datalist id="to-station-list">
+            {toOptions.map(s => <option key={s.id_ga} value={s.ten_ga} />)}
+          </datalist>
         </div>
       </div>
 

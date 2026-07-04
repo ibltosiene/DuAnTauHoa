@@ -99,7 +99,7 @@ const mapApiTrain = (ct) => {
     id: ct.idChuyen,
     idChuyen: ct.idChuyen,
     code: ct.maTau,
-    type: ct.loaiTau || 'Tàu Liên Tỉnh',
+    type: ct.loaiTau,
     fromStation: ct.gaDi?.ten || '',
     toStation: ct.gaDen?.ten || '',
     gaDiId: ct.gaDi?.id,
@@ -452,30 +452,7 @@ const SeatMap = ({
 
       <div className="px-4 pb-4">
         {/* Điều chỉnh số hành khách cho từng chiều (chỉ hiện khi khứ hồi) */}
-        {canAdjust && (
-          <div className="mb-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
-            <p className="text-xs font-semibold text-amber-800 mb-2">Số vé chiều này:</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-              {[
-                { type: 'adult',   label: 'Người lớn',     cur: legAdults,   max: adultMax,   badge: null    },
-                { type: 'elderly', label: 'Người cao tuổi',cur: legElderly,  max: elderlyMax, badge: '-15%'  },
-                { type: 'student', label: 'Sinh viên',      cur: legStudent,  max: studentMax, badge: '-10%'  },
-                { type: 'child',   label: 'Trẻ em',         cur: legChildren, max: childMax,   badge: '-25%'  },
-              ].filter(r => r.max > 0).map(({ type, label, cur, max, badge }) => (
-                <div key={type} className="flex items-center gap-1.5">
-                  <span className="text-xs text-neutral-700">{label}</span>
-                  {badge && <span className="text-[10px] text-green-600 font-semibold">{badge}</span>}
-                  <button type="button" onClick={() => onAdjust(type, -1)} disabled={cur <= 0}
-                    className="h-6 w-6 rounded-full bg-[#8C1D19] text-white text-xs flex items-center justify-center disabled:bg-gray-300">−</button>
-                  <span className="w-5 text-center text-sm font-bold">{cur}</span>
-                  <button type="button" onClick={() => onAdjust(type, +1)} disabled={cur >= max}
-                    className="h-6 w-6 rounded-full bg-[#8C1D19] text-white text-xs flex items-center justify-center disabled:bg-gray-300">+</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
+        
         <div className="flex flex-wrap gap-2 mb-3">
           {Array.from({ length: totalPassengers }, (_, idx) => {
             const sel      = selectedSeats[idx]
@@ -601,28 +578,11 @@ const TrainSelection = ({
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [confirmError, setConfirmError] = useState(null)
   const seatsCache = useRef({})  // key: `${idChuyen}_${coachId}`
-
-  // Số lượng hành khách cho riêng chuyến này (có thể khác tổng tìm kiếm khi khứ hồi)
-  const [legAdults,   setLegAdults]   = useState(adultTickets)
-  const [legElderly,  setLegElderly]  = useState(elderlyTickets)
-  const [legStudent,  setLegStudent]  = useState(studentTickets)
-  const [legChildren, setLegChildren] = useState(childTickets)
-  const legTotal = legAdults + legElderly + legStudent + legChildren
-
-  const legSetters = { adult: setLegAdults, elderly: setLegElderly, student: setLegStudent, child: setLegChildren }
-  const legCounts  = { adult: legAdults,    elderly: legElderly,    student: legStudent,    child: legChildren }
-  const legMax     = { adult: adultTickets, elderly: elderlyTickets, student: studentTickets, child: childTickets }
-
-  const adjustLeg = (type, delta) => {
-    const isAdult = type === 'adult'
-    const next = Math.max(isAdult ? 0 : 0, legCounts[type] + delta)
-    if (next > legMax[type]) return          // không vượt tổng tìm kiếm
-    const others = legTotal - legCounts[type]
-    if (others + next < 1) return            // tối thiểu 1 vé
-    legSetters[type](next)
-    setSelectedSeats(prev => prev.slice(0, others + next))
-  }
-
+  const legAdults   = adultTickets
+  const legElderly  = elderlyTickets
+  const legStudent  = studentTickets
+  const legChildren = childTickets
+  const legTotal    = totalPassengers
   // Tìm kiếm chuyến từ API
   useEffect(() => {
     if (!fromStation || !toStation || !travelDate) return
@@ -804,8 +764,6 @@ const TrainSelection = ({
         elderlyMax={elderlyTickets}
         studentMax={studentTickets}
         childMax={childTickets}
-        canAdjust={isRoundTrip}
-        onAdjust={adjustLeg}
         onCoachChange={handleCoachChange}
         onSeatSelect={handleSeatSelect}
         onConfirm={handleConfirm}

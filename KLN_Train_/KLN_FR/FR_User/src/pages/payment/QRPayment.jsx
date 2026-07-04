@@ -186,8 +186,14 @@ const QRPayment = () => {
 
   const TripCard = ({ trip, title, isReturn = false }) => {
     if (!trip) return null
-    const seatLabel = trip.coach?.type === 'NMCLC' ? 'Ghế' : 'Giường'
-    return (
+const seatsByCoach = (trip.passengerSeats || []).reduce((acc, s) => {
+      const key = s.coachId
+      const label = s.coachType === 'NMCLC' ? 'Ghế' : 'Giường'
+      if (!acc[key]) acc[key] = { label, coachName: s.coachName || `Toa ${key}`, seats: [] }
+      acc[key].seats.push(s.seatNumber)
+      return acc
+    }, {})
+        return (
       <div className={`border rounded-lg overflow-hidden ${isReturn ? 'mt-3' : ''}`}>
         <div className={`px-3 py-1.5 text-xs font-bold ${isReturn ? 'bg-blue-50 text-blue-700' : 'bg-[#8C1D19]/10 text-[#8C1D19]'}`}>
           {title}
@@ -211,9 +217,13 @@ const QRPayment = () => {
             </div>
           </div>
           <div className="mt-2 pt-2 border-t text-xs text-gray-600 space-y-0.5">
-            <div><span className="text-gray-400">Tàu: </span>{trip.train?.type} {trip.train?.code}</div>
-            <div><span className="text-gray-400">Toa: </span>{trip.coach?.name}</div>
-            <div><span className="text-gray-400">{seatLabel}: </span>{trip.seats?.join(', ')}</div>
+<div><span className="text-gray-400">Tàu: </span>{trip.train?.type} {trip.train?.code}</div>
+            {Object.entries(seatsByCoach).map(([coachId, { label, coachName, seats }]) => (
+              <div key={coachId}>
+                <span className="text-gray-400">Toa: </span>{coachName}
+                <span className="ml-2 text-gray-400">{label}: </span>{seats.join(', ')}
+              </div>     
+             ))}     
           </div>
         </div>
       </div>

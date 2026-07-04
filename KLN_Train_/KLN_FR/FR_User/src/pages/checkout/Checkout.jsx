@@ -6,7 +6,7 @@ import RootLayout from '../../layout/RootLayout'
 import { formatDate as formatDisplayDate } from '../../utils/dateUtils'
 import { createBooking, releaseHold } from '../../api/bookings'
 import { validatePassengerAge, getPassengerInfo, calcAge } from '../../utils/passengerUtils'
-
+import { getUser } from '../../utils/authUtils'
 /* ── Birth Date Input (uncontrolled) ──────────────────────────────
    KHÔNG dùng value prop — React không can thiệp vào cursor.
    Thao tác DOM trực tiếp: el.value + el.setSelectionRange → cursor luôn đúng.
@@ -153,7 +153,12 @@ const Checkout = () => {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [contactInfo, setContactInfo] = useState({ phone: '', email: '', needInvoice: false })
+  const currentUser = getUser()
+  const [contactInfo, setContactInfo] = useState({
+    phone: currentUser?.soDienThoai || '',
+    email: currentUser?.email || '',
+    needInvoice: false,
+  })
   const [passengers, setPassengers] = useState(
     Array(totalPassengers || 1).fill(null).map(() => ({ fullName: '', birthDate: '', idCard: '' }))
   )
@@ -298,7 +303,7 @@ const Checkout = () => {
           tripType,
           contactInfo,
           passengersInfo: passengers.map((p, idx) => {
-            const seat  = allSeats[idx]
+            const seat = departureTrip?.passengerSeats?.[idx]
             const pType = seat?.passengerType || (idx >= adultTickets ? 'child' : 'adult')
             return {
               ...p,
@@ -326,6 +331,15 @@ const Checkout = () => {
     if (!trip) return null
     const departDate = trip.departDate || trip.train?.departDate
     const arriveDate = trip.arriveDate || trip.train?.arriveDate
+    
+    const seatsByCoach = (trip.passengerSeats || []).reduce((acc, s) => {
+      const key = s.coachId
+      const label = s.coachType === 'NMCLC' ? 'Ghế' : 'Giường'
+      if (!acc[key]) acc[key] = { label, coachName: s.coachName || `Toa ${key}`, seats: [] }
+      acc[key].seats.push(s.seatNumber)
+      return acc
+    }, {})
+
     return (
       <div className={`bg-white rounded-lg shadow-md p-4 ${isReturn ? 'mt-3' : ''}`}>
         <div className={`text-sm font-bold mb-2 ${isReturn ? 'text-blue-600' : 'text-[#8C1D19]'}`}>{title}</div>
@@ -343,9 +357,16 @@ const Checkout = () => {
           </div>
           <div className="text-right">
             <p className="font-semibold">{trip.train?.code || '--'}</p>
-            <p className="text-xs text-gray-500">{trip.coach?.name || '--'}</p>
-          </div>
+            
+          </div>         
         </div>
+        {Object.keys(seatsByCoach).length > 0 && (
+          <div className="mt-2 pt-2 border-t text-xs text-gray-500 space-y-0.5">
+            {Object.entries(seatsByCoach).map(([coachId, { label, coachName, seats }]) => (
+              <p key={coachId}>{coachName} · {label} {seats.join(', ')}</p>
+            ))}
+          </div>
+        )}
       </div>
     )
   }
@@ -424,8 +445,8 @@ const Checkout = () => {
 
                   // Tìm ghế tương ứng theo sequential: dep ghế 0..N1-1, ret ghế N1..N1+N2-1
                   const depCount  = departureTrip?.passengerSeats?.length || 0
-                  const depSeat   = idx < depCount ? departureTrip?.passengerSeats?.[idx] : null
-                  const retSeat   = idx >= depCount ? returnTrip?.passengerSeats?.[idx - depCount] : null
+                  const depSeat = departureTrip?.passengerSeats?.[idx] || null
+                  const retSeat = returnTrip?.passengerSeats?.[idx] || null
                   const depPrice  = depSeat?.seatPrice || 0
                   const retPrice  = retSeat?.seatPrice || 0
 

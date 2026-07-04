@@ -3,7 +3,7 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "../DieuPhoiVien/frontend/src/**/*.{js,jsx}",
+    "../FR_Dispatcher/src/**/*.{js,jsx}",
   ],
   theme: {
     extend: {

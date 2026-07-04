@@ -1,0 +1,19 @@
+{
+  "name": "@kln/report-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Report Service — đọc tổng hợp Booking+Payment+Railway+Auth cho dashboard/report admin (read-only)",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "@kln/shared": "*",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

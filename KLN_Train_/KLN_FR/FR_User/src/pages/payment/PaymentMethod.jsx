@@ -83,8 +83,17 @@ const PaymentMethod = () => {
   const TripCard = ({ trip, title, isReturn = false }) => {
     if (!trip) return null
     
-    const seatText = trip.seats?.length > 1 ? `Ghế ${trip.seats.join(', ')}` : `Ghế ${trip.seats?.[0] || '--'}`
-    
+const seatsByCoach = (trip.passengerSeats || []).reduce((acc, s) => {
+      const key = s.coachId
+      const label = s.coachType === 'NMCLC' ? 'Ghế' : 'Giường'
+      if (!acc[key]) acc[key] = { label, seats: [] }
+      acc[key].seats.push(s.seatNumber)
+      return acc
+    }, {})
+    const seatText = Object.entries(seatsByCoach)
+      .map(([coachId, { label, seats }]) => `${label} ${seats.join(', ')}–Toa ${coachId}`)
+      .join(', ') || '--'
+      
     return (
       <div className={`border rounded-lg p-3 ${isReturn ? 'mt-3' : ''}`}>
         <div className={`text-xs font-bold mb-1 ${isReturn ? 'text-blue-600' : 'text-[#8C1D19]'}`}>

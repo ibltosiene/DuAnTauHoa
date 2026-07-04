@@ -9,7 +9,7 @@ import {
 const pTime = t => { if (!t) return '--:--'; const s = String(t); const m = s.match(/T(\d{2}:\d{2})/); return m ? m[1] : s.slice(0, 5) }
 const THU   = { '1':'CN','2':'T2','3':'T3','4':'T4','5':'T5','6':'T6','7':'T7' }
 const DAYS  = [['2','T2'],['3','T3'],['4','T4'],['5','T5'],['6','T6'],['7','T7'],['1','CN']]
-const inputCls = "w-full border-2 border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:border-[#8C1D19] focus:ring-0 outline-none"
+const inputCls = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:border-[#8C1D19] focus:ring-0 focus:outline-none outline-none appearance-none"
 
 const FormField = ({ label, children, sub }) => (
   <div>
@@ -38,6 +38,7 @@ export default function QuanLyLich() {
   const [showGaDungForm, setShowGaDungForm] = useState(false)
   const [editingGaDung, setEditingGaDung] = useState(null)
   const [gaDungForm, setGaDungForm] = useState({ thuTuDung:'', idGa:'', gioDen:'', gioDi:'', thoiGianDung:'0', khoangCachKm:'' })
+  const [gaSearchText, setGaSearchText] = useState('')
   const [gaDungSaving, setGaDungSaving] = useState(false)
   const [gaDungMsg, setGaDungMsg] = useState({ text:'', type:'' })
 
@@ -130,6 +131,7 @@ export default function QuanLyLich() {
     setGaDungLich(lc)
     setShowGaDungForm(false)
     setEditingGaDung(null)
+    
     setGaDungMsg({ text:'', type:'' })
     loadGaDungList(lc.id_lich_chay)
   }
@@ -146,6 +148,7 @@ export default function QuanLyLich() {
   const openAddGaDung = () => {
     setEditingGaDung(null)
     setGaDungForm({ thuTuDung: String(gaDungList.length + 1), idGa:'', gioDen:'', gioDi:'', thoiGianDung:'0', khoangCachKm:'' })
+    setGaSearchText('')     
     setShowGaDungForm(true)
   }
 
@@ -159,6 +162,7 @@ export default function QuanLyLich() {
       thoiGianDung: String(s.thoiGianDung),
       khoangCachKm: String(s.khoangCachKm),
     })
+    setGaSearchText(gaList.find(g => g.id_ga === s.idGa)?.ten_ga || '')
     setShowGaDungForm(true)
   }
 
@@ -206,7 +210,7 @@ export default function QuanLyLich() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2"><FiCalendar className="text-[#8C1D19]" /> Quản lý Lịch Chạy</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Quản lý lịch trình chạy tàu và sinh chuyến hàng loạt</p>
+          <p className="text-gray-500 text-sm mt-0.5">Quản lý lịch trình chạy tàu</p>
         </div>
         <button onClick={openCreate}
           className="flex items-center gap-2 bg-[#8C1D19] text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#6b1411]">
@@ -402,10 +406,23 @@ export default function QuanLyLich() {
                         onChange={e => setGaDungForm(p => ({...p, thuTuDung: e.target.value}))} className={inputCls} />
                     </FormField>
                     <FormField label="Ga dừng">
-                      <select value={gaDungForm.idGa} onChange={e => setGaDungForm(p => ({...p, idGa: e.target.value}))} className={inputCls}>
-                        <option value="">-- Chọn ga --</option>
-                        {gaList.map(g => <option key={g.id_ga} value={g.id_ga}>{g.ten_ga}</option>)}
-                      </select>
+                      <>
+                      <input
+                         list="ga-dung-list"
+                          placeholder="-- Nhập hoặc chọn ga --"
+                          className={inputCls}
+                          value={gaSearchText}
+                          onChange={e => {
+                            setGaSearchText(e.target.value)
+                            const found = gaList.find(g => g.ten_ga === e.target.value)
+                            setGaDungForm(p => ({...p, idGa: found ? String(found.id_ga) : ''}))
+                          }}
+                        
+                      />
+                      <datalist id="ga-dung-list">
+                        {gaList.map(g => <option key={g.id_ga} value={g.ten_ga} />)}
+                      </datalist>
+                    </>
                     </FormField>
                   </div>
                   <div className="grid grid-cols-2 gap-3">

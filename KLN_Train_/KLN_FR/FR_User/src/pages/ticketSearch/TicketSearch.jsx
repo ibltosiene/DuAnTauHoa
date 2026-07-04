@@ -109,13 +109,13 @@ const TicketSearch = () => {
     const totalS = depStudent + legStudent
 
     navigate('/checkout', {
-      state: {
+       state: {
         trips: [{ ...departureInfo, sessionId }, { ...returnTripData, sessionId }],
-        totalPassengers: totalA + totalC + totalE + totalS,
-        adultTickets:    totalA,
-        childTickets:    totalC,
-        elderlyTickets:  totalE,
-        studentTickets:  totalS,
+        totalPassengers: adultTickets + childTickets + elderlyTickets + studentTickets,
+        adultTickets,
+        childTickets,
+        elderlyTickets,
+        studentTickets,
         tripType: 'round-trip',
         hetHan,
       },

@@ -15,6 +15,8 @@ const SearchForm = ({ onSearch, initialValues = {} }) => {
   const [stations, setStations]             = useState([])
   const [fromStation, setFromStation]       = useState(initialValues.fromStation   || '')
   const [toStation, setToStation]           = useState(initialValues.toStation     || '')
+  const [fromSearchText, setFromSearchText] = useState(initialValues.fromStation   || '')
+  const [toSearchText, setToSearchText]     = useState(initialValues.toStation     || '')
   const [departureDate, setDepartureDate]   = useState(initialValues.departureDate || '')
   const [returnDate, setReturnDate]         = useState(initialValues.returnDate    || '')
   const [tripType, setTripType]             = useState(initialValues.tripType      || 'one-way')
@@ -78,7 +80,7 @@ const SearchForm = ({ onSearch, initialValues = {} }) => {
   const toOptions   = stations.filter(s => s.ten_ga !== fromStation)
 
   const inputCls = (field) =>
-    `h-11 w-full rounded-md bg-white pl-10 pr-3 text-sm text-neutral-900 outline-none placeholder:text-neutral-400 focus:ring-2 focus:ring-[#FFD15A] ${errors[field] ? 'border-2 border-red-500' : ''}`
+    `h-11 w-full rounded-md bg-white pl-10 pr-3 text-sm text-neutral-900 outline-none placeholder:text-neutral-400 focus:ring-0 focus:ring-[#FFD15A] ${errors[field] ? 'border-2 border-red-500' : ''}`
 
   const ROWS = [
     { key: 'adult',   label: 'Người lớn',     sub: 'Từ 10 – 59 tuổi',  badge: null,   count: adultTickets,   minV: 1 },
@@ -112,12 +114,21 @@ const SearchForm = ({ onSearch, initialValues = {} }) => {
           <div className="flex-1">
             <div className="relative">
               <FaTrainSubway className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500 z-10" />
-              <select value={fromStation}
-                onChange={e => { setFromStation(e.target.value); setErrors(p => ({ ...p, fromStation: '' })) }}
-                className={inputCls('fromStation')}>
-                <option value="" disabled>Chọn ga đi</option>
-                {fromOptions.map(s => <option key={s.id_ga} value={s.ten_ga}>{s.ten_ga}</option>)}
-              </select>
+              <input
+                list="search-from-station-list"
+                placeholder="Chọn ga đi"
+                value={fromSearchText}
+                onChange={e => {
+                  setFromSearchText(e.target.value)
+                  const found = stations.find(s => s.ten_ga === e.target.value)
+                  setFromStation(found ? found.ten_ga : '')
+                  setErrors(p => ({ ...p, fromStation: '' }))
+                }}
+                className={inputCls('fromStation')}
+              />
+              <datalist id="search-from-station-list">
+                {fromOptions.map(s => <option key={s.id_ga} value={s.ten_ga} />)}
+              </datalist>
             </div>
             {errors.fromStation && <p className="text-red-600 text-xs mt-1">{errors.fromStation}</p>}
           </div>
@@ -130,12 +141,21 @@ const SearchForm = ({ onSearch, initialValues = {} }) => {
           <div className="flex-1">
             <div className="relative">
               <FaTrainSubway className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500 z-10" />
-              <select value={toStation}
-                onChange={e => { setToStation(e.target.value); setErrors(p => ({ ...p, toStation: '' })) }}
-                className={inputCls('toStation')}>
-                <option value="" disabled>Chọn ga đến</option>
-                {toOptions.map(s => <option key={s.id_ga} value={s.ten_ga}>{s.ten_ga}</option>)}
-              </select>
+              <input
+                list="search-to-station-list"
+                placeholder="Chọn ga đến"
+                value={toSearchText}
+                onChange={e => {
+                  setToSearchText(e.target.value)
+                  const found = stations.find(s => s.ten_ga === e.target.value)
+                  setToStation(found ? found.ten_ga : '')
+                  setErrors(p => ({ ...p, toStation: '' }))
+                }}
+                className={inputCls('toStation')}
+              />
+              <datalist id="search-to-station-list">
+                {toOptions.map(s => <option key={s.id_ga} value={s.ten_ga} />)}
+              </datalist>
             </div>
             {errors.toStation && <p className="text-red-600 text-xs mt-1">{errors.toStation}</p>}
           </div>

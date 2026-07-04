@@ -372,6 +372,7 @@ const ExchangeSelect = ({ chosenTicket, onBack, onContinue }) => {
   const [loadingCoachId, setLoadingCoachId] = useState(null)
   const [selectedSeat, setSelectedSeat]     = useState(null)
   const seatsCache = useRef({})
+
   const dateInputRef = useRef(null)
 
   const { trip: oldTrip, passenger: oldPassenger } = chosenTicket

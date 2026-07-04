@@ -7,7 +7,8 @@ export const createBooking = (data) => post('/bookings', data)
 export const lookupBooking = (maDatCho, email, phone) =>
   post('/bookings/lookup', { maDatCho, email, phone })
 
-export const getBookingHistory = () => get('/bookings/history')
+export const getBookingHistory = (page = 1, limit = 5) =>
+  get(`/bookings/history?page=${page}&limit=${limit}`)
 
 export const getBookingByCode = (maDatCho) => get(`/bookings/${maDatCho}`)
 

@@ -131,19 +131,29 @@ const BookingHistory = () => {
   const [loading, setLoading]             = useState(false)
   const [error, setError]                 = useState(null)
   const [selectedBooking, setSelectedBooking] = useState(null)
+  const [currentPage, setCurrentPage]     = useState(1)
+  const [totalPages, setTotalPages]       = useState(1)
+  const [totalItems, setTotalItems]       = useState(0)
+  const LIMIT = 5
 
-  useEffect(() => {
+  const fetchPage = (page) => {
     if (!isLoggedIn()) return
     setLoading(true)
     setError(null)
-    getBookingHistory()
+    getBookingHistory(page, LIMIT)
       .then(res => {
-        const list = res.data || res
-        setBookings(Array.isArray(list) ? list.map(normalizeApiBooking).filter(Boolean) : [])
+        const data = res.data || res
+        const items = (data.items || []).map(normalizeApiBooking).filter(Boolean)
+        setBookings(items)
+        setTotalPages(data.totalPages || 1)
+        setTotalItems(data.totalItems || 0)
+        setCurrentPage(data.currentPage || page)
       })
       .catch(err => setError(err.message || 'Lỗi tải lịch sử đặt vé'))
       .finally(() => setLoading(false))
-  }, [])
+  }
+
+  useEffect(() => { fetchPage(1) }, [])
 
   // Đang xem chi tiết
   if (selectedBooking) {
@@ -182,8 +192,8 @@ const BookingHistory = () => {
       <div className="flex items-center gap-2 mb-4">
         <FaTicket className="text-[#8C1D19] text-base" />
         <h3 className="font-bold text-gray-800 text-base">Lịch sử đặt vé</h3>
-        {!loading && bookings.length > 0 && (
-          <span className="ml-auto text-xs text-gray-400">{bookings.length} đơn</span>
+        {!loading && totalItems > 0 && (
+          <span className="ml-auto text-xs text-gray-400">{totalItems} đơn</span>
         )}
       </div>
 
@@ -227,6 +237,31 @@ const BookingHistory = () => {
           {bookings.map((b, i) => (
             <BookingCard key={b.bookingCode || i} b={b} onClick={() => setSelectedBooking(b)} />
           ))}
+
+          {/* Phân trang */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <button onClick={() => fetchPage(1)} disabled={currentPage === 1}
+                className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors">
+                Đầu
+              </button>
+              <button onClick={() => fetchPage(currentPage - 1)} disabled={currentPage === 1}
+                className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors">
+                ‹ Trước
+              </button>
+              <span className="px-3 py-1.5 text-xs font-semibold text-[#8C1D19]">
+                {currentPage} / {totalPages}
+              </span>
+              <button onClick={() => fetchPage(currentPage + 1)} disabled={currentPage === totalPages}
+                className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors">
+                Sau ›
+              </button>
+              <button onClick={() => fetchPage(totalPages)} disabled={currentPage === totalPages}
+                className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors">
+                Cuối
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
