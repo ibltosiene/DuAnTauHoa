@@ -68,6 +68,7 @@ const addStop = async ({ id_lich_chay, thu_tu_dung, id_ga, gio_den, gio_di, khoa
     INSERT INTO LichTrinhChuyen (id_lich_chay, thu_tu_dung, id_ga, gio_den, gio_di, khoang_cach_km, thoi_gian_dung, offset_phut)
     VALUES (:id_lich_chay, :thu_tu_dung, :id_ga, :gio_den, :gio_di, :khoang_cach_km, :thoi_gian_dung, 0)
   `, { replacements: { id_lich_chay, thu_tu_dung, id_ga, gio_den, gio_di, khoang_cach_km, thoi_gian_dung } })
+await sequelize.query('EXEC sp_TinhOffsetPhut :id', { replacements: { id: id_lich_chay } })
 }
 
 const removeStop = async ({ id_lich_chay, id_ga }) => {
