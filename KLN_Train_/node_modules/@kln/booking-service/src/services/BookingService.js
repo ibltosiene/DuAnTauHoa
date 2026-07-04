@@ -54,8 +54,7 @@ const createBooking = async ({ trips, passengers, contactInfo, idTaiKhoan = null
   // 2. Tính tổng tiền
   const tongTienVe = trips.reduce((s, trip) =>
     s + trip.passengerSeats.reduce((ps, p) => ps + p.seatPrice, 0), 0)
-  const phiDichVu = trips.length > 1 ? 40000 : 20000
-  const tongTruocGiam = tongTienVe + phiDichVu
+ const tongTruocGiam = tongTienVe
 
   if (khuyenMai && tongTruocGiam >= parseFloat(khuyenMai.gia_tri_don_toi_thieu)) {
     if (khuyenMai.loai_giam === 'phan_tram') {

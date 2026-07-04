@@ -18,8 +18,7 @@ const mapGateway = (pt) => {
 }
 
 // Phí phụ thu theo phương thức thanh toán (đồng bộ với frontend PaymentMethod.jsx)
-const PHI_PHUONG_THUC = { qr: 0, credit: 28000, momo: 14600, atm: 14100 }
-const tinhPhiThanhToan = (pt) => PHI_PHUONG_THUC[pt] ?? 0
+const tinhPhiThanhToan = () => 0
 
 const buildQrUrl = (amount, maDon) =>
   `https://img.vietqr.io/image/BIDV-9630630005144911-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(maDon)}&accountName=KLN%20TRAIN`

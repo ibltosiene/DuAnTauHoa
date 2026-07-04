@@ -96,8 +96,7 @@ export const normalizeApiBooking = (don) => {
   }))
 
   const totalSeatPrice = passengers.reduce((s, p) => s + (p.price || 0), 0)
-  const serviceFee     = Math.max(0, (don.tienThanhToan || 0) - totalSeatPrice)
-
+  const serviceFee = 0
   return {
     source:        'api',
     bookingCode:   don.maDatCho     || '',

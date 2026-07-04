@@ -64,18 +64,17 @@ const PaymentMethod = () => {
   }
 
   const methods = [
-    { id: 'qr', name: 'Chuyển khoản QR', icon: <FaQrcode />, desc: 'Quét mã QR - Miễn phí', fee: 0 },
-    { id: 'credit', name: 'Thẻ tín dụng', icon: <FaCreditCard />, desc: 'Visa, Master, JCB', fee: 28000 },
-    { id: 'momo', name: 'Ví MoMo', icon: <FaWallet />, desc: 'Thanh toán qua MoMo', fee: 14600 },
-    { id: 'atm', name: 'Thẻ ATM nội địa', icon: <FaBuilding />, desc: 'Chuyển khoản ATM', fee: 14100 }
+    { id: 'qr', name: 'Chuyển khoản QR', icon: <FaQrcode />, desc: 'Quét mã QR - Miễn phí' },
+    { id: 'credit', name: 'Thẻ tín dụng', icon: <FaCreditCard />, desc: 'Visa, Master, JCB' },
+    { id: 'momo', name: 'Ví MoMo', icon: <FaWallet />, desc: 'Thanh toán qua MoMo' },
+    { id: 'atm', name: 'Thẻ ATM nội địa', icon: <FaBuilding />, desc: 'Chuyển khoản ATM' } 
   ]
-
-  const feeAmount = methods.find(m => m.id === selectedMethod)?.fee || 0
-  const grandTotal = totalAmount + feeAmount
+  
+  const grandTotal = totalAmount 
 
   const handleConfirm = () => {
     navigate('/thanh-toan/qr', {
-      state: { ...bookingData, totalAmount: grandTotal, phuongThuc: selectedMethod, paymentFee: feeAmount },
+      state: { ...bookingData, totalAmount: grandTotal, phuongThuc: selectedMethod, paymentFee: 0 },
     })
   }
 
@@ -182,7 +181,6 @@ const seatsByCoach = (trip.passengerSeats || []).reduce((acc, s) => {
                       <p className="text-sm text-gray-500">{m.desc}</p>
                     </div>
                   </div>
-                  {m.fee > 0 && <span className="text-[#ff8a00]">+{formatPrice(m.fee)}</span>}
                 </label>
               ))}
             </div>
@@ -238,23 +236,9 @@ const seatsByCoach = (trip.passengerSeats || []).reduce((acc, s) => {
               <h3 className="font-bold mb-3">Chi tiết giá</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span>Giá vé ({totalPassengers} khách x {isRoundTrip ? 2 : 1} chiều)</span>
-                  <span>{formatPrice(totalAmount - (totalPassengers * (isRoundTrip ? 44000 : 22000)))}</span>
+                  <span>Giá vé ({totalPassengers} khách{isRoundTrip ? ' x 2 chiều' : ''})</span>
+                  <span>{formatPrice(totalAmount)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Phí bảo hiểm</span>
-                  <span>{formatPrice(totalPassengers * (isRoundTrip ? 4000 : 2000))}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Phí dịch vụ</span>
-                  <span>{formatPrice(totalPassengers * (isRoundTrip ? 40000 : 20000))}</span>
-                </div>
-                {feeAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span>Phí thanh toán ({methods.find(m => m.id === selectedMethod)?.name})</span>
-                    <span>{formatPrice(feeAmount)}</span>
-                  </div>
-                )}
                 <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between font-bold">
                     <span>Tổng cộng</span>

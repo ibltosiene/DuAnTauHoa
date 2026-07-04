@@ -126,11 +126,9 @@ const Checkout = () => {
   const returnTrip = trips?.[1]
   const isRoundTrip = tripType === 'round-trip'
 
-  // Total price from passengerSeats (already includes child discount)
-  const totalPrice = trips?.reduce((sum, trip) => sum + (trip.totalPrice || 0), 0) || 0
-  const serviceFee = isRoundTrip ? 40000 : 20000
-  const totalAmount = totalPrice + serviceFee
-
+  // Total price from passengerSeats 
+const totalPrice = trips?.reduce((sum, trip) => sum + (trip.totalPrice || 0), 0) || 0
+const totalAmount = totalPrice
   // Đánh dấu đã navigate đi (submit hoặc chủ động quay lại) — cleanup sẽ không giải phóng lại
   const releasedRef = React.useRef(false)
 
@@ -578,10 +576,7 @@ const Checkout = () => {
                       <span>· {childTickets} trẻ em (giảm 25%)</span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span>Phí dịch vụ</span>
-                    <span className="text-[#ff8a00]">+ {formatPrice(serviceFee)}</span>
-                  </div>
+                  
                   <div className="border-t pt-2 mt-2 flex justify-between font-bold">
                     <span>Tổng tiền</span>
                     <span className="text-[#ff8a00]">{formatPrice(totalAmount)}</span>
