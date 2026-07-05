@@ -105,6 +105,7 @@ const QRPayment = () => {
           const rawVes = d.DonDatVe?.Ves || []
           const veList = rawVes.map(v => ({
             idVe:          v.id_ve,
+            maVe:          v.ma_ve,
             idChuyen:      v.id_chuyen,
             soToa:         v.so_toa_thu_tu,
             soGhe:         v.so_ghe_trong_toa,

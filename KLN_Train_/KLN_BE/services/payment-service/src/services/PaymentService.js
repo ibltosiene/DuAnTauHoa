@@ -80,7 +80,19 @@ const confirmPayment = async (idThanhToan) => {
     return { tt, isFirstTime: true }
   })
 
-  if (!isFirstTime) return { message: 'Đã xác nhận trước đó' }
+  if (!isFirstTime) {
+  const don = await DonDatVe.findByPk(tt.id_don_dat_ve)
+  const hd = await HoaDon.findOne({ where: { id_don_dat_ve: tt.id_don_dat_ve }, order: [['id_hoa_don', 'DESC']] })
+  const orderDetail = await serviceClient.get('booking', `/internal/orders/${tt.id_don_dat_ve}/ve-details`)
+  return {
+    message: 'Đã xác nhận trước đó',
+    soHoaDon: hd?.so_hoa_don,
+    maDatCho: don?.ma_dat_cho,
+    idDon: don?.id_don_dat_ve,
+    tongThanhToan: parseFloat(tt.so_tien),
+    veList: orderDetail.data.veList || [],
+  }
+}
 
   const don = await DonDatVe.findByPk(tt.id_don_dat_ve)
   if (!don) throw { status: 404, message: 'Không tìm thấy đơn đặt vé' }

@@ -3,6 +3,7 @@ const { sequelize } = require('../config/database')
 
 const Ve = sequelize.define('Ve', {
   id_ve:            { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  ma_ve: { type: DataTypes.STRING(9), allowNull: true, unique: true },
   id_don_dat_ve:    { type: DataTypes.INTEGER, allowNull: false },
   id_hanh_khach:    { type: DataTypes.INTEGER, allowNull: false },
   id_chuyen:        { type: DataTypes.INTEGER, allowNull: false },

@@ -126,6 +126,7 @@ export const normalizeApiBooking = (don) => {
     },
     veList: veList.map(v => ({
       idVe:          v.idVe,
+      maVe:          v.maVe,
       idChuyen:      v.idChuyen,
       soToa:         Number(v.soToa),
       soGhe:         Number(v.soGhe),
@@ -200,6 +201,7 @@ export const normalizeApiForCancel = (don) => {
         coachType:   '',
         passengers: tg.map(v => ({
           id:        v.idVe,         // idVe — dùng cho cancel API
+          maVe: v.maVe,
           fullName:  v.hanhKhach?.hoTen || '--',
           idCard:    v.hanhKhach?.cccd  || '',
           birthDate: toVNDate(v.hanhKhach?.ngaySinh),

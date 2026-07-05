@@ -3,6 +3,16 @@ const { requireInternalKey, response: { ok, notFound } } = require('@kln/shared'
 const { DonDatVe, Ve, TamGiuGhe, sequelize, HanhKhach, GaTau, ChuyenTau, LichChay } = require('../models')
 const RailwaySeat = require('../services/RailwaySeatClient')
 
+const parseTime = (t) => {
+  if (!t) return ''
+  if (t instanceof Date) {
+    return t.getUTCHours().toString().padStart(2, '0') 
+      + ':' + t.getUTCMinutes().toString().padStart(2, '0')
+  }
+  const s = String(t)
+  const m = s.match(/(\d{2}:\d{2})/)
+  return m ? m[1] : ''
+}
 // Gọi bởi payment-service khi xác nhận thanh toán thành công.
 router.use(requireInternalKey)
 
@@ -24,7 +34,7 @@ router.post('/:idDon/mark-paid', async (req, res, next) => {
       )
       return Ve.findAll({
         where: { id_don_dat_ve: idDon },
-        attributes: ['id_ve', 'id_chuyen', 'so_toa_thu_tu', 'so_ghe_trong_toa', 'gia_ve', 'loai_hanh_khach'],
+        attributes: ['id_ve', 'ma_ve','id_chuyen', 'so_toa_thu_tu', 'so_ghe_trong_toa', 'gia_ve', 'loai_hanh_khach'],
          include: [
           { model: HanhKhach, attributes: ['ho_ten'] },
           { model: GaTau, as: 'GaLen', attributes: ['ten_ga'] },
@@ -47,6 +57,9 @@ router.post('/:idDon/mark-paid', async (req, res, next) => {
       tongTien: don.tong_tien,
       tienGiam: don.tien_giam,
       veList: veList.map(v => ({
+        idVe: v.id_ve,                    // ← thêm
+        idChuyen: v.id_chuyen,
+        maVe: v.ma_ve, 
         hanhKhach: v.HanhKhach?.ho_ten || '',
         gaDi: v.GaLen?.ten_ga || '',
         gaDen: v.GaXuong?.ten_ga || '',
@@ -54,7 +67,7 @@ router.post('/:idDon/mark-paid', async (req, res, next) => {
         soGhe: v.so_ghe_trong_toa,
         giaVe: parseFloat(v.gia_ve),
         ngayChay: v.ChuyenTau?.ngay_chay || '',
-        gioKhoiHanh: v.ChuyenTau?.LichChay?.gio_khoi_hanh || '',
+        gioKhoiHanh: parseTime(v.ChuyenTau?.LichChay?.gio_khoi_hanh),
       })),
     })
   } catch (err) { next(err) }

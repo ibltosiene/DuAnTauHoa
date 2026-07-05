@@ -120,7 +120,7 @@ const BookingResult = ({ data, error, isLoading, onBack }) => {
   const handlePrint = () => {
     if (!veList?.length) return
     const tickets = veList.map(v => ({
-      ticketCode:  String(v.idVe),
+      ticketCode:  v.maVe,
       bookingCode,
       passenger:   { fullName: v.fullName, type: mapLoaiHKToType(v.loaiHanhKhach) },
       fromStation: v.gaDi,
@@ -147,7 +147,7 @@ const BookingResult = ({ data, error, isLoading, onBack }) => {
   })
   const tripGroups = Array.from(tripMap.values())
   const isRoundTrip = tripGroups.length >= 2
-  const ticketPrice = (totalPrice || 0) - (serviceFee || 0)
+  const ticketPrice = totalPrice || 0
 
   /* ── Bảng hành khách theo chiều ── */
   const TripPassengerTable = ({ tickets, tripIdx }) => {
@@ -186,7 +186,7 @@ const BookingResult = ({ data, error, isLoading, onBack }) => {
                     })()}
                   </td>
                   <td className="px-4 py-2.5 text-gray-600">Toa {v.soToa} · Chỗ {v.soGhe}</td>
-                  <td className="px-4 py-2.5 font-mono text-gray-700">{v.idVe || <span className="text-gray-400">—</span>}</td>
+                  <td className="px-4 py-2.5 font-mono text-gray-700">{v.maVe || <span className="text-gray-400">—</span>}</td>
                   <td className="px-4 py-2.5 text-right font-semibold text-[#8C1D19]">{fmt(v.giaVe)}</td>
                 </tr>
               ))}
@@ -338,12 +338,7 @@ const BookingResult = ({ data, error, isLoading, onBack }) => {
         <div className="border-t border-gray-100 pt-4 flex justify-between items-end flex-wrap gap-4">
           <p className="text-xs text-gray-500">* Vui lòng xuất trình CMND/CCCD khi lên tàu</p>
           <div className="text-right text-sm space-y-0.5">
-            {(serviceFee || 0) > 0 && (
-              <>
-                <p className="text-gray-600">Giá vé: <span className="font-medium text-gray-800">{fmt(ticketPrice > 0 ? ticketPrice : totalPrice)}</span></p>
-                <p className="text-gray-600">Phí dịch vụ: <span className="font-medium text-gray-800">+{fmt(serviceFee)}</span></p>
-              </>
-            )}
+            
             <p className="text-sm font-semibold text-gray-700 mt-1">Tổng thanh toán</p>
             <p className="text-2xl font-extrabold text-[#8C1D19]">{fmt(totalPrice || 0)}</p>
           </div>

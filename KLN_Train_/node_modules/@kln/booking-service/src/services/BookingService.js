@@ -7,6 +7,23 @@ const RailwaySeat = require('../services/RailwaySeatClient')
 const CustomerClient = require('../services/CustomerClient')
 const { genBookingCode, genOrderCode } = require('../utils/helpers')
 
+const genMaVeBatch = async (count) => {
+  const codes = new Set()
+  while (codes.size < count) {
+    codes.add(String(Math.floor(100000000 + Math.random() * 900000000)))
+  }
+  const existing = await sequelize.query(
+    'SELECT ma_ve FROM Ve WHERE ma_ve IN (:codes)',
+    { replacements: { codes: [...codes] }, type: sequelize.QueryTypes.SELECT }
+  )
+  const taken = new Set(existing.map(e => e.ma_ve))
+  const result = [...codes].filter(c => !taken.has(c))
+  while (result.length < count) {
+    const ma = String(Math.floor(100000000 + Math.random() * 900000000))
+    if (!taken.has(ma) && !result.includes(ma)) result.push(ma)
+  }
+  return result
+}
 // Giữ ghế tạm khi user bắt đầu điền form (trước khi đặt vé chính thức)
 const holdSeatsForCheckout = async ({ trips }) => {
   const sessionId = require('crypto').randomBytes(8).toString('hex').toUpperCase()
@@ -112,29 +129,39 @@ const createBooking = async ({ trips, passengers, contactInfo, idTaiKhoan = null
     }, { transaction: t })
 
     // 6. Tạo Ve cho mỗi chuyến (HanhKhach: tìm/tạo qua customer-service)
-    const veList = []
-    let passengerIdx = 0
+      const veList = []
+      const hkCache = new Map()                    // ← thêm cache
+      const totalVe = trips.reduce((s, t) => s + t.passengerSeats.length, 0)
+      const maVeList = await genMaVeBatch(totalVe)
+      let maVeIdx = 0
     for (const trip of trips) {
       for (let i = 0; i < trip.passengerSeats.length; i++) {
         const ps = trip.passengerSeats[i]
-        const p = passengers[passengerIdx++] ?? passengers[passengers.length - 1]
+        const p = passengers[i] ?? passengers[passengers.length - 1]
 
         const loaiHK = p.isChild ? 'tre_em'
           : p.isElderly ? 'nguoi_cao_tuoi'
           : p.isStudent ? 'sinh_vien'
           : 'nguoi_lon'
 
-        const hk = await CustomerClient.findOrCreatePassenger({
-          id_tai_khoan: idTaiKhoan,
-          ho_ten: p.hoTen,
-          ngay_sinh: p.ngaySinh,
-          cccd: p.cccd || null,
-          loai_hanh_khach: loaiHK,
-          so_dien_thoai: contactInfo.phone.replace(/\s/g, ''),
-          la_chinh: passengerIdx === 1,
-        })
-
+        // Cache: cùng người thì không gọi customer-service lần 2
+        const cacheKey = `${p.hoTen}|${p.ngaySinh}`
+        let hk = hkCache.get(cacheKey)
+        if (!hk) {
+          hk = await CustomerClient.findOrCreatePassenger({
+            id_tai_khoan: idTaiKhoan,
+            ho_ten: p.hoTen,
+            ngay_sinh: p.ngaySinh,
+            cccd: p.cccd || null,
+            loai_hanh_khach: loaiHK,
+            so_dien_thoai: contactInfo.phone.replace(/\s/g, ''),
+            la_chinh: i === 0,
+          })
+          hkCache.set(cacheKey, hk)
+        }
+        
         const ve = await Ve.create({
+          ma_ve: maVeList[maVeIdx++],             
           id_don_dat_ve: don.id_don_dat_ve,
           id_hanh_khach: hk.id_hanh_khach,
           id_chuyen: trip.idChuyen,
@@ -193,21 +220,22 @@ const createBooking = async ({ trips, passengers, contactInfo, idTaiKhoan = null
       await KhuyenMai.increment('da_dung', { by: 1, where: { id_khuyen_mai: khuyenMai.id_khuyen_mai }, transaction: t })
     }
 
-    // 8. Gắn id_ve vào GheChang (railway) — best-effort, Ve local đã là
-    // nguồn sự thật dự phòng cho việc kiểm tra ghế trống nếu bước này lỗi.
-    for (const { ve, trip } of veList) {
-      if (trip.idGaLen && trip.idGaXuong) {
-        await RailwaySeat.linkVe({
-          idChuyen: trip.idChuyen,
-          soToaThuTu: ve.so_toa_thu_tu,
-          soGheTrongToa: ve.so_ghe_trong_toa,
-          idVe: ve.id_ve,
-          idGaLen: trip.idGaLen,
-          idGaXuong: trip.idGaXuong,
-          sessionId: trip.sessionId || null,
-        }).catch(() => {})
-      }
-    }
+    // 8. Gắn id_ve vào GheChang (railway) — song song, best-effort
+    await Promise.allSettled(
+      veList
+        .filter(({ trip }) => trip.idGaLen && trip.idGaXuong)
+        .map(({ ve, trip }) =>
+          RailwaySeat.linkVe({
+            idChuyen: trip.idChuyen,
+            soToaThuTu: ve.so_toa_thu_tu,
+            soGheTrongToa: ve.so_ghe_trong_toa,
+            idVe: ve.id_ve,
+            idGaLen: trip.idGaLen,
+            idGaXuong: trip.idGaXuong,
+            sessionId: trip.sessionId || null,
+          })
+        )
+    )
 
     return { don, maDon, maDatCho, tongThanhToan, tienGiam, veList: veList.map(v => v.ve) }
   })
@@ -276,6 +304,7 @@ const formatDon = (don) => {
     thoiGianHetHan: don.thoi_gian_het_han,
     ve: (don.Ves || []).map(ve => ({
       idVe: ve.id_ve,
+       maVe: ve.ma_ve,   
       idChuyen: ve.id_chuyen,
       soToa: ve.so_toa_thu_tu,
       soGhe: ve.so_ghe_trong_toa,

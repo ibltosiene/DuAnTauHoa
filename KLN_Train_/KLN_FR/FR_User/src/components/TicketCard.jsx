@@ -62,7 +62,7 @@ const TicketCard = ({ ticket }) => {
             ['Ngày đi/Date:', formatDate(departDate)],
             ['Giờ đi/Time:', departTime || '--'],
             [`Toa/Coach: ${coachId || '--'}`, `Chỗ/Seat: ${seatNumber || '--'}`],
-            ['Loại chỗ/Class:', coachType],
+            
             ['Loại vé/Ticket:', isChild ? 'Trẻ em (-25%)' : 'Người lớn'],
             ['Họ tên/Name:', passenger?.fullName || '--'],
             ...(passenger?.idCard ? [['Giấy tờ/Passport:', passenger.idCard]] : []),

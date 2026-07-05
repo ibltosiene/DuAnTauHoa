@@ -41,9 +41,7 @@ const TicketCard = ({ passenger, passengerIdx, trip, tripLabel, bookingCode, tri
     Number(v.soToa)    === soToaFE &&
     Number(v.soGhe)    === soGheFE
   )
-  const ticketCode = matchVe
-    ? `VE${String(matchVe.idVe).padStart(6, '0')}`
-    : `VE${bookingCode}${passengerIdx}${tripIdx ?? 0}`
+const ticketCode = matchVe?.maVe || String(matchVe?.idVe || '')
 
   const qrData = `${ticketCode}|${passenger?.fullName}|${trip?.train?.code}|${trip?.fromStation}-${trip?.toStation}`
 
@@ -86,7 +84,7 @@ const TicketCard = ({ passenger, passengerIdx, trip, tripLabel, bookingCode, tri
             ['Ngày đi/Date:', formatDisplayDate(trip?.departDate || trip?.train?.departDate)],
             ['Giờ đi/Time:', trip?.departTime || '--'],
             [`Toa/Coach: ${coachId}`, `Chỗ/Seat: ${seatNumber}`],
-            ['Loại chỗ/Class:', coachType],
+           
             ['Loại vé/Ticket:', ticketTypeLabel],
             ['Họ tên/Name:', passenger?.fullName || '--'],
             ...(passenger?.idCard ? [['Giấy tờ/Passport:', passenger.idCard]] : []),
@@ -142,9 +140,7 @@ const PaymentSuccess = () => {
       Number(v.soToa)    === soToaFE &&
       Number(v.soGhe)    === soGheFE
     )
-    return matchVe
-      ? `VE${String(matchVe.idVe).padStart(6, '0')}`
-      : `VE${bookingCode}${pIdx}${tIdx}`
+    return matchVe?.maVe || String(matchVe?.idVe || '')
   }
 
   const handlePrint = () => {
