@@ -49,7 +49,7 @@ const routeTable = [
   { prefix: '/api/notifications', service: 'notification' },
 
   // --- Report Service ---
-  { prefix: '/api/admin/dashboard', service: 'report' },
+  { prefix: '/api/admin/dashboard', service: 'dashboard' },
   { prefix: '/api/admin/reports', service: 'report' },
 ]
 

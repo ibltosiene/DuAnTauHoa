@@ -1,0 +1,11 @@
+D:\Nam3\HK2\CNLTTH\DuAnTauHoa\KLN_Train_\KLN_BE\services\dashboard-rust\target\debug\deps\dotenv-34fd4f4c5791baf3.d: C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\lib.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\parse.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\errors.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\iter.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\find.rs
+
+D:\Nam3\HK2\CNLTTH\DuAnTauHoa\KLN_Train_\KLN_BE\services\dashboard-rust\target\debug\deps\libdotenv-34fd4f4c5791baf3.rlib: C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\lib.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\parse.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\errors.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\iter.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\find.rs
+
+D:\Nam3\HK2\CNLTTH\DuAnTauHoa\KLN_Train_\KLN_BE\services\dashboard-rust\target\debug\deps\libdotenv-34fd4f4c5791baf3.rmeta: C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\lib.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\parse.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\errors.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\iter.rs C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\find.rs
+
+C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\lib.rs:
+C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\parse.rs:
+C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\errors.rs:
+C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\iter.rs:
+C:\Users\ASUS\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\dotenv-0.15.0\src\find.rs:
