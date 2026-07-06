@@ -50,6 +50,7 @@ import AdminSettings from "@admin/pages/Settings/Settings"
 import AdminProfile from "@admin/pages/Profile/Profile"
 import "@admin/styles/global.scss"
 
+import ChatBot from './components/ChatBot'
 const DispatcherGuard = ({ children }) =>
   dpIsLoggedIn() ? children : <Navigate to="/dispatcher/dang-nhap" replace />
 
@@ -97,6 +98,7 @@ const MainLayout = () => (
     <Navbar />
     <Outlet />
     <Footer />
+    <ChatBot />
   </main>
 )
 

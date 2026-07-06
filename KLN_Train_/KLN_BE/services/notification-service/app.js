@@ -17,6 +17,7 @@ app.get('/health', (req, res) => res.json({ success: true, message: 'notificatio
 
 app.use('/api', routes)
 app.use('/internal', internalNotifyRoutes)
+app.use('/api/chatbot', require('./src/routes/chatbot.routes'))
 
 app.use(notFoundHandler)
 app.use(errorHandler)

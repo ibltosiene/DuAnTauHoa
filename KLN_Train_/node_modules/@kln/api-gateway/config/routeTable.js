@@ -51,6 +51,10 @@ const routeTable = [
   // --- Report Service ---
   { prefix: '/api/admin/dashboard', service: 'dashboard' },
   { prefix: '/api/admin/reports', service: 'report' },
+
+  // ChatBot AI
+  { prefix: '/api/chatbot', service: 'notification' },
 ]
+
 
 module.exports = { routeTable }
