@@ -125,7 +125,6 @@ const SeatTypesManagement = () => {
   const columns = [
     { title: 'Mã loại ghế', key: 'ma_loai_ghe', width: '100px' },
     { title: 'Tên loại ghế', key: 'ten_loai_ghe', width: '290px' },
-    { title: 'Loại toa', key: 'ten_loai_toa', width: '260px' },
     { title: 'Hệ số giá', key: 'he_so_gia', render: (v) => `${v}x` },
     { title: 'Trạng thái', key: 'trang_thai', render: (v) => {
       const status = getStatusBadge(v);
@@ -229,18 +228,48 @@ const SeatTypesManagement = () => {
       {/* Add/Edit Modal */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={selectedSeat ? 'Sửa loại ghế' : 'Thêm loại ghế'}>
         <form onSubmit={handleSubmit}>
-          <div className="form-group"><label>Mã loại ghế *</label><input type="text" value={formData.ma_loai_ghe} onChange={(e) => setFormData({...formData, ma_loai_ghe: e.target.value.toUpperCase()})} required /></div>
-          <div className="form-group"><label>Tên loại ghế *</label><input type="text" value={formData.ten_loai_ghe} onChange={(e) => setFormData({...formData, ten_loai_ghe: e.target.value})} required /></div>
-          <div className="form-group"><label>Loại toa</label><select value={formData.id_loai_toa} onChange={(e) => setFormData({...formData, id_loai_toa: e.target.value})} required>
-            <option value="">-- Chọn loại toa --</option>{carriageTypes.map(c => <option key={c.id_loai_toa} value={c.id_loai_toa}>{c.ten_loai_toa}</option>)}
-          </select></div>
-          <div className="form-row"><div className="form-group"><label>Hệ số giá</label><input type="number" step="0.05" value={formData.he_so_gia} onChange={(e) => setFormData({...formData, he_so_gia: e.target.value})} /></div>
-          <div className="form-group"><label>Trạng thái</label><select value={formData.trang_thai} onChange={(e) => setFormData({...formData, trang_thai: e.target.value})}><option value="dang_ban">Đang bán</option><option value="ngung_ban">Ngừng bán</option></select></div></div>
+          <div className="form-group">
+            <label>Mã loại ghế *</label>
+            <input type="text" value={formData.ma_loai_ghe} onChange={(e) => setFormData({...formData, ma_loai_ghe: e.target.value.toUpperCase()})} required /></div>
+          <div className="form-group">
+            <label>Tên loại ghế *</label>
+            <input type="text" value={formData.ten_loai_ghe} onChange={(e) => setFormData({...formData, ten_loai_ghe: e.target.value})} required />
+          </div>
+          <div className="form-group">
+            <label>Loại toa</label>
+            <select value={formData.id_loai_toa} onChange={(e) => setFormData({...formData, id_loai_toa: e.target.value})} required>
+              <option value="">-- Chọn loại toa --</option>
+              {carriageTypes.map(c => (
+                <option key={c.id_loai_toa} value={c.id_loai_toa}>
+                  {c.ten_loai_toa}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Hệ số giá</label>
+              <input type="number" step="0.05" value={formData.he_so_gia} onChange={(e) => setFormData({...formData, he_so_gia: e.target.value})} />
+            </div>
+            <div className="form-group">
+              <label>Trạng thái</label>
+              <select value={formData.trang_thai} onChange={(e) => setFormData({...formData, trang_thai: e.target.value})}>
+                <option value="dang_ban">Đang bán</option>
+                <option value="ngung_ban">Ngừng bán</option>
+              </select>
+            </div>
+          </div>
           <div className="form-actions"><button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>Hủy</button><button type="submit" className="btn-primary">Lưu</button></div>
         </form>
       </Modal>
 
-      <ConfirmDialog isOpen={showConfirm} onClose={() => setShowConfirm(false)} onConfirm={handleDelete} title="Xóa loại ghế" message={`Xóa loại ghế ${deleteTarget?.ten_loai_ghe}?`} confirmText="Xóa" cancelText="Hủy" />
+      <ConfirmDialog 
+      isOpen={showConfirm} 
+      onClose={() => setShowConfirm(false)} 
+      onConfirm={handleDelete} 
+      title="Xóa loại ghế" 
+      message={`Xóa loại ghế ${deleteTarget?.ten_loai_ghe}?`} 
+      confirmText="Xóa" cancelText="Hủy" />
 
       <AlertDialog isOpen={alertDialog.isOpen} onClose={() => setAlertDialog({ ...alertDialog, isOpen: false })} title={alertDialog.title} message={alertDialog.message} type={alertDialog.type} />
     </div>

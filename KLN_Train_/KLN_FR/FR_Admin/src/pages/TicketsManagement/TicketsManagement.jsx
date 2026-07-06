@@ -147,229 +147,262 @@ const loadTickets = async () => {
   };
 
   const handlePrintTicket = (ticket) => {
-    const bookingCode = generateBookingCode();
-    const currentDate = new Date().toLocaleDateString('vi-VN');
-    const currentTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-    
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <!DOCTYPE html>
-<html>
-<head>
-  <title>Vé tàu SE8 - Đường sắt Hà Nội</title>
-  <meta charset="UTF-8">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #e9ecef;
-      padding: 40px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .boarding-pass {
-      max-width: 550px;
-      width: 100%;
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-    /* Header đỏ - giống ảnh */
-    .header {
-      background: #b12a2a;
-      padding: 16px 20px;
-      text-align: center;
-    }
-    .header h1 {
-      color: #ffefc0;
-      font-size: 22px;
-      letter-spacing: 1px;
-      font-weight: 600;
-    }
-    .header .sub {
-      color: #ffefc0;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-    /* Nội dung chính */
-    .content {
-      padding: 20px 24px;
-    }
-    .ticket-id {
-      text-align: right;
-      font-size: 12px;
-      color: #b12a2a;
-      font-weight: bold;
-      margin-bottom: 16px;
-    }
-    /* Hàng trình 2 cột SÀI GÒN - HÀ NỘI */
-    .journey-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fef7e6;
-      padding: 12px 16px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
-    .station-box {
-      text-align: center;
-      flex: 1;
-    }
-    .station-name {
-      font-size: 24px;
-      font-weight: 800;
-      color: #2c3e2f;
-      letter-spacing: 1px;
-    }
-    .station-name small {
-      font-size: 12px;
-      font-weight: normal;
-    }
-    .arrow-icon {
-      font-size: 28px;
-      color: #b12a2a;
-      font-weight: bold;
-      padding: 0 8px;
-    }
-    /* Thông tin chi tiết dạng lưới */
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px 16px;
-      margin-bottom: 20px;
-    }
-    .info-item {
-      border-bottom: 1px dashed #ddd;
-      padding-bottom: 6px;
-    }
-    .info-label {
-      font-size: 11px;
-      color: #b12a2a;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .info-value {
-      font-size: 16px;
-      font-weight: 700;
-      color: #1e2a1e;
-      margin-top: 2px;
-    }
-    /* Hàng ghế + loại vé đặc biệt */
-    .seat-class-row {
-      background: #f5f2eb;
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin: 16px 0;
-      display: flex;
-      justify-content: space-between;
-    }
-    .full-width {
-      margin: 12px 0;
-    }
-    .price {
-      font-size: 18px;
-      font-weight: bold;
-      color: #b12a2a;
-    }
-    .note {
-      font-size: 11px;
-      color: #666;
-      margin-top: 12px;
-      text-align: center;
-      border-top: 1px solid #eee;
-      padding-top: 12px;
-    }
-    .invoice-link {
-      font-size: 11px;
-      background: #f5f2eb;
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      margin: 12px 0;
-      word-break: break-all;
-    }
-    .footer-print {
-      background: #2c2e2a;
-      padding: 12px;
-      text-align: center;
-      font-size: 10px;
-      color: #ccc;
-    }
-    hr {
-      margin: 12px 0;
-      border: none;
-      border-top: 1px dashed #b12a2a;
-    }
-  </style>
-</head>
-<body>
-<div class="boarding-pass">
-  <div class="header">
-    <h1>CÔNG TY CỔ PHẦN VẬN TẢI<br>ĐƯỜNG SẮT KLN</h1>
-    <div class="sub">THẺ LÊN TÀU HỎA / BOARDING PASS</div>
-  </div>
-  <div class="content">
-    <div class="ticket-id">Mã vé/TicketID: 90213282</div>
-
-    <!-- Ga đi - Ga đến dạng lớn như ảnh -->
-    <div class="journey-row">
-      <div class="station-box">
-        <div class="station-name">SÀI GÒN</div>
-      </div>
-      <div class="arrow-icon">→</div>
-      <div class="station-box">
-        <div class="station-name">HÀ NỘI</div>
-      </div>
-    </div>
-
-    <!-- Thông tin chuyến đi dạng 4 cột như ảnh gốc: Tàu, Ngày đi, Giờ đi, Toa, Chỗ... -->
-    <div class="info-grid">
-      <div class="info-item"><div class="info-label">Tàu/Train</div><div class="info-value">SE8</div></div>
-      <div class="info-item"><div class="info-label">Ngày đi/Date</div><div class="info-value">23/5/2026</div></div>
-      <div class="info-item"><div class="info-label">Giờ đi/Time</div><div class="info-value">06:00</div></div>
-      <div class="info-item"><div class="info-label">Toa/Coach</div><div class="info-value">2</div></div>
-      <div class="info-item"><div class="info-label">Chỗ/Seat</div><div class="info-value">41</div></div>
-      <div class="info-item"><div class="info-label">Loại chỗ/Class</div><div class="info-value">Ngồi mềm điều hòa</div></div>
-      <div class="info-item"><div class="info-label">Loại vé/Ticket</div><div class="info-value">Toàn vé</div></div>
-      <div class="info-item"><div class="info-label">Họ tên/Name</div><div class="info-value">NGUYỄN VĂN A</div></div>
-      <div class="info-item"><div class="info-label">Giấy tờ/Passport</div><div class="info-value">---</div></div>
-    </div>
-
-    <!-- Giá vé nổi bật -->
-    <div class="seat-class-row">
-      <span><strong>Giá/Price:</strong></span>
-      <span class="price">908.000 VNĐ</span>
-    </div>
-
-    <!-- Ghi chú hóa đơn điện tử giống ảnh -->
-    <div class="invoice-link">
-      📍 Ghi chú: Để tra cứu và nhận hóa đơn điện tử xin vui lòng truy cập<br>
-      http://hoadon.klntrain.vn<br>
-      <strong>Mã tra cứu hóa đơn: S2NFBIDF</strong>
-    </div>
-
-    <div class="note">
-      Thẻ này không có giá trị thanh toán.<br>
-      This boarding pass is not an official invoice.
-    </div>
-    <hr>
-    <div style="font-size: 10px; text-align: center; color:#666;">
-      HN010-5421302. Ngày in/Printed date: 24/5/2026 (1)
-    </div>
-  </div>
-  <div class="footer-print">
-    Hotline hỗ trợ: 1900 1234 | www.klntrain.vn
-  </div>
-</div>
-</body>
-</html>
-    `);
-    printWindow.print();
+  const bookingCode = generateBookingCode();
+  const currentDate = new Date().toLocaleDateString('vi-VN');
+  const currentTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  
+  // Format dữ liệu từ ticket
+  const ticketCode = ticket.ma_ve || '---';
+  const passengerName = ticket.hanh_khach || '---';
+  const trainCode = ticket.chuyen_tau || '---';
+  const fromStation = ticket.ga_len || '---';
+  const toStation = ticket.ga_xuong || '---';
+  const departDate = ticket.ngay_di ? new Date(ticket.ngay_di).toLocaleDateString('vi-VN') : '---';
+  const departTime = ticket.gio_di || '---';
+  const coachId = ticket.so_toa || '--';
+  const seatNumber = ticket.so_ghe || '--';
+  const coachType = ticket.loai_ghe || 'Ngồi mềm điều hòa';
+  const price = ticket.gia_ve || 0;
+  const isChild = ticket.loai_ve === 'tre_em';
+  const idCard = ticket.so_cccd || ticket.giay_to || '---';
+  
+  // Tạo QR data
+  const qrData = `${ticketCode}|${passengerName}|${trainCode}|${fromStation}-${toStation}`;
+  
+  // Lấy thời gian hiện tại
+  const now = () => {
+    const d = new Date();
+    return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
   };
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Vé tàu - ${trainCode}</title>
+      <meta charset="UTF-8">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: 'Segoe UI', Arial, sans-serif;
+          background: #e9ecef;
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+        }
+        .ticket-card {
+          background: white;
+          border: 1px solid #ccc;
+          max-width: 400px;
+          width: 100%;
+          margin: 0 auto;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        /* Header */
+        .ticket-header {
+          text-align: center;
+          border-bottom: 1px solid #ccc;
+          padding: 12px 16px;
+          background: #f8f9fa;
+        }
+        .ticket-header p {
+          font-weight: bold;
+          line-height: 1.4;
+          font-size: 13px;
+        }
+        .ticket-header .title {
+          font-size: 15px;
+          margin-top: 4px;
+          letter-spacing: 1px;
+        }
+        /* QR */
+        .qr-section {
+          display: flex;
+          justify-content: center;
+          padding: 12px;
+          border-bottom: 1px solid #ccc;
+        }
+        .qr-section svg {
+          width: 80px;
+          height: 80px;
+        }
+        /* Ticket code */
+        .ticket-code {
+          text-align: center;
+          padding: 6px 12px;
+          border-bottom: 1px solid #ccc;
+          background: #f8f9fa;
+          font-size: 13px;
+        }
+        .ticket-code strong {
+          font-family: 'Courier New', monospace;
+          letter-spacing: 1px;
+        }
+        /* Stations */
+        .stations {
+          display: flex;
+          justify-content: space-between;
+          padding: 12px 20px;
+          border-bottom: 1px solid #ccc;
+        }
+        .station-box {
+          text-align: center;
+        }
+        .station-box .label {
+          font-size: 11px;
+          color: #666;
+        }
+        .station-box .name {
+          font-size: 20px;
+          font-weight: 900;
+          line-height: 1.2;
+          text-transform: uppercase;
+        }
+        /* Details table */
+        .details-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        .details-table tr {
+          border-bottom: 1px solid #f0f0f0;
+        }
+        .details-table tr:last-child {
+          border-bottom: none;
+        }
+        .details-table td {
+          padding: 4px 16px;
+          font-size: 13px;
+        }
+        .details-table .label-cell {
+          color: #666;
+          white-space: nowrap;
+          font-weight: normal;
+          width: 40%;
+        }
+        .details-table .value-cell {
+          font-weight: bold;
+        }
+        /* Footer */
+        .ticket-footer {
+          border-top: 1px solid #ccc;
+          padding: 8px 16px;
+          display: flex;
+          justify-content: space-between;
+          font-size: 11px;
+          color: #666;
+          background: #fafafa;
+        }
+        .ticket-footer .booking-code {
+          color: #8C1D19;
+          font-weight: bold;
+        }
+        .price-highlight {
+          color: #b12a2a;
+        }
+        @media print {
+          body { background: white; padding: 0; }
+          .ticket-card { box-shadow: none; border: 1px solid #999; border-radius: 0; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="ticket-card">
+        <!-- Header -->
+        <div class="ticket-header">
+          <p>CÔNG TY CỔ PHẦN VẬN TẢI</p>
+          <p>ĐƯỜNG SẮT KLN</p>
+          <p class="title">THẺ LÊN TÀU HỎA / BOARDING PASS</p>
+        </div>
+
+        <!-- QR Code -->
+        <div class="qr-section">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(qrData)}" alt="QR Code" />
+        </div>
+
+        <!-- Ticket Code -->
+        <div class="ticket-code">
+          Mã vé/TicketID: <strong>${ticketCode}</strong>
+        </div>
+
+        <!-- Stations -->
+        <div class="stations">
+          <div class="station-box">
+            <div class="label">Ga đi</div>
+            <div class="name">${(fromStation || '--').toUpperCase()}</div>
+          </div>
+          <div class="station-box">
+            <div class="label">Ga đến</div>
+            <div class="name">${(toStation || '--').toUpperCase()}</div>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <table class="details-table">
+          <tbody>
+            <tr>
+              <td class="label-cell">Tàu/Train:</td>
+              <td class="value-cell">${trainCode || '--'}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Ngày đi/Date:</td>
+              <td class="value-cell">${departDate}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Giờ đi/Time:</td>
+              <td class="value-cell">${departTime || '--'}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Toa/Coach:</td>
+              <td class="value-cell">${coachId || '--'}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Chỗ/Seat:</td>
+              <td class="value-cell">${seatNumber || '--'}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Loại chỗ/Class:</td>
+              <td class="value-cell">${coachType}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Loại vé/Ticket:</td>
+              <td class="value-cell">${isChild ? 'Trẻ em (-25%)' : 'Người lớn'}</td>
+            </tr>
+            <tr>
+              <td class="label-cell">Họ tên/Name:</td>
+              <td class="value-cell">${passengerName}</td>
+            </tr>
+            ${idCard !== '---' ? `
+            <tr>
+              <td class="label-cell">Giấy tờ/Passport:</td>
+              <td class="value-cell">${idCard}</td>
+            </tr>
+            ` : ''}
+            ${price > 0 ? `
+            <tr>
+              <td class="label-cell">Giá/Price:</td>
+              <td class="value-cell price-highlight">${new Intl.NumberFormat('vi-VN').format(price)} VNĐ</td>
+            </tr>
+            ` : ''}
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <div class="ticket-footer">
+          <span>Mã đặt chỗ: <span class="booking-code">${bookingCode}</span></span>
+          <span>${now()}</span>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+}
 
   const getStatusText = (status) => {
     const statuses = {
@@ -392,8 +425,8 @@ const loadTickets = async () => {
 
   const columns = [
     { title: 'Mã vé', key: 'ma_ve', width: '80px' },
-    { title: 'Khách hàng', key: 'hanh_khach', width: '150px' },
-    { title: 'Chuyến tàu', key: 'chuyen_tau', width: '120px' },
+    { title: 'Khách hàng', key: 'hanh_khach', width: '170px' },
+    { title: 'Chuyến tàu', key: 'chuyen_tau', width: '100px' },
     { title: 'Hành trình', key: 'ga_len', width: '200px', render: (_, row) => `${row.ga_len} → ${row.ga_xuong}` },
     { title: 'Ngày đi', key: 'ngay_di', width: '100px', render: (v) => formatDate(v) },
     { title: 'Giá vé', key: 'gia_ve', render: (v) => formatCurrency(v) },
@@ -407,11 +440,6 @@ const loadTickets = async () => {
       render: (_, row) => (
         <div className="action-buttons">
           <button className="btn-view" onClick={() => { setSelectedTicket(row); setShowDetailModal(true); }} title="Xem chi tiết"><FiEye /></button>
-          {(row.trang_thai === 'hieu_luc' || row.trang_thai === 'da_xac_nhan') && (
-            <>
-              <button className="btn-cancel" onClick={() => handleCancelTicket(row)} title="Hủy vé"><FiXCircle /></button>
-            </>
-          )}
           <button className="btn-print" onClick={() => handlePrintTicket(row)} title="In vé"><FiPrinter /></button>
         </div>
       )
@@ -457,7 +485,6 @@ const loadTickets = async () => {
 
       <DataTable columns={columns} data={filteredTickets} />
 
-      <ConfirmDialog isOpen={showConfirmDialog} onClose={() => setShowConfirmDialog(false)} onConfirm={processConfirmTicket} title="Xác nhận vé" message={`Xác nhận vé ${selectedTicket?.ma_ve} đã được sử dụng?`} confirmText="Xác nhận" cancelText="Quay lại" />
 
       {/* Cancel Ticket Modal - nhập lý do hủy */}
       <Modal isOpen={showCancelModal} onClose={() => setShowCancelModal(false)} title="Hủy vé" size="sm">
@@ -496,7 +523,6 @@ const loadTickets = async () => {
             </div>
             {(selectedTicket.trang_thai === 'hieu_luc' || selectedTicket.trang_thai === 'da_xac_nhan') && (
               <div className="modal-actions">
-                <button className="btn-confirm" onClick={() => { setShowDetailModal(false); handleConfirmTicket(selectedTicket); }}><FiCheckCircle /> Xác nhận</button>
                 <button className="btn-cancel" onClick={() => { setShowDetailModal(false); handleCancelTicket(selectedTicket); }}><FiXCircle /> Hủy vé</button>
                 <button className="btn-print" onClick={() => handlePrintTicket(selectedTicket)}><FiPrinter /> In vé</button>
               </div>

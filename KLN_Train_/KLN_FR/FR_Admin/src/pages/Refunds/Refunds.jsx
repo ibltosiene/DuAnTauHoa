@@ -133,9 +133,9 @@ const Refunds = () => {
   };
 
   const columns = [
-    { title: 'Mã vé', key: 'ma_ve', width: '80px' },
-    { title: 'Khách hàng', key: 'khach_hang', width: '150px' },
-    { title: 'Chuyến tàu', key: 'chuyen_tau', width: '115px' },
+    { title: 'Mã vé', key: 'ma_ve', width: '70px' },
+    { title: 'Khách hàng', key: 'khach_hang', width: '170px' },
+    { title: 'Chuyến tàu', key: 'chuyen_tau', width: '10px' },
     { title: 'Ngày hủy', key: 'ngay_huy', width: '100px' },
     { title: 'Tiền gốc', key: 'tien_goc', render: (v) => formatCurrency(v) },
     { title: 'Phí hủy', key: 'phi_huy', render: (v) => formatCurrency(v) },
@@ -174,8 +174,12 @@ const Refunds = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const totalRefundAmount = refunds.reduce((sum, r) => sum + (r.tien_hoan || 0), 0);
-  const totalFeeAmount = refunds.reduce((sum, r) => sum + (r.phi_huy || 0), 0);
+  const totalRefundAmount = refunds
+  .filter(r => r.trang_thai === 'hoan_thanh')
+  .reduce((sum, r) => sum + (r.tien_hoan || 0), 0);
+  const totalFeeAmount = refunds
+  .filter(r => r.trang_thai === 'hoan_thanh')
+  .reduce((sum, r) => sum + (r.phi_huy || 0), 0);
   const pendingCount = refunds.filter(r => r.trang_thai === 'pending' || r.trang_thai === 'cho_xu_ly').length;
   const completedCount = refunds.filter(r => r.trang_thai === 'completed' || r.trang_thai === 'hoan_thanh').length;
 

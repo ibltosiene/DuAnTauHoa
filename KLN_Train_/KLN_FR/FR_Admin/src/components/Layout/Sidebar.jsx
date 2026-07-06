@@ -154,12 +154,6 @@ const Sidebar = ({ collapsed, toggleCollapse, mobileOpen }) => {
               <span className="smallText">Thông báo</span>
             </NavLink>
           </li>
-          <li className="listItem">
-            <NavLink to="/admin/settings" className={({ isActive }) => `menuLink flex ${isActive ? 'active' : ''}`}>
-              <FiSettings className='icon' />
-              <span className="smallText">Cài đặt</span>
-            </NavLink>
-          </li>
         </ul>
       </div>
 

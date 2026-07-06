@@ -36,7 +36,6 @@ const Header = ({ toggleSidebar, collapsed }) => {
           {showDropdown && (
             <div className="dropdown-menu">
               <a href="/admin/profile">Hồ sơ</a>
-              <a href="/admin/settings">Cài đặt</a>
               <hr />
               <a href="#" onClick={() => {
                 localStorage.removeItem('admin_token');

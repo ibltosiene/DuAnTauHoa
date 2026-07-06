@@ -133,14 +133,14 @@ const Dashboard = () => {
         <div>
           <h1>Tổng quan</h1>
         </div>
-        <div className="date-selector">
+        {/* <div className="date-selector">
           <FiCalendar />
           <select defaultValue="month">
             <option value="week">Tuần này</option>
             <option value="month">Tháng này</option>
             <option value="year">Năm nay</option>
           </select>
-        </div>
+        </div> */}
       </div>
 
       {/* 5 thẻ thống kê chính */}
@@ -158,14 +158,14 @@ const Dashboard = () => {
           <div className="sub-stat-icon"><FiCheckCircle /></div>
           <div className="sub-stat-info">
             <span className="sub-stat-label">Tỷ lệ đúng giờ</span>
-            <span className="sub-stat-value">{rates.ontime_rate}%</span>
+            <span className="sub-stat-value">{rates.ontime_rate?.toFixed(2)}%</span>
           </div>
         </div>
         <div className="sub-stat-card">
           <div className="sub-stat-icon"><FiXCircle /></div>
           <div className="sub-stat-info">
             <span className="sub-stat-label">Tỷ lệ hủy vé</span>
-            <span className="sub-stat-value">{rates.cancel_rate}%</span>
+            <span className="sub-stat-value">{rates.cancel_rate?.toFixed(2)}%</span>
           </div>
         </div>
       </div>

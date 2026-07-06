@@ -249,7 +249,7 @@ const StationsManagement = () => {
         onClose={() => setShowConfirm(false)}
         onConfirm={confirmDelete}
         title="Xóa ga"
-        message={`Xóa ga ${deleteTarget?.ten_ga}?`}
+        message={`Xóa ga ${deleteTarget?.ten_ga} sẽ ảnh hưởng đến các dịch vụ liên quan. Bạn có chắc chắn muốn xóa?`}
         confirmText="Xóa"
         cancelText="Hủy"
       />

@@ -306,7 +306,7 @@ const TrainsManagement = () => {
         onClose={() => setShowConfirm(false)}
         onConfirm={confirmDelete}
         title="Xóa tàu"
-        message={`Xóa tàu ${deleteTarget?.so_hieu}?`}
+        message={`Xóa tàu ${deleteTarget?.so_hieu} sẽ ảnh hưởng đến các dịch vụ liên quan. Bạn có chắc chắn muốn xóa?`}
         confirmText="Xóa"
         cancelText="Hủy"
       />

@@ -181,15 +181,15 @@ const Reports = () => {
           <h1 className="page-title">Báo cáo & Thống kê</h1>
         </div>
         <div className="header-actions">
-          <div className="date-range">
+          {/* <div className="date-range">
             <FiCalendar />
             <select value={dateRange} onChange={(e) => setDateRange(e.target.value)}>
               <option value="week">7 ngày qua</option>
               <option value="month">30 ngày qua</option>
               <option value="quarter">90 ngày qua</option>
-              <option value="year">12 tháng qua</option>
+              {/* <option value="year">12 tháng qua</option> 
             </select>
-          </div>
+          </div> */}
           <button className="btn-print" onClick={handlePrint}><FiPrinter /> In</button>
 
 

@@ -14,13 +14,25 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+   console.log(`📤 [${config.method.toUpperCase()}] ${config.baseURL}${config.url}`);
+  console.log('📦 Headers:', config.headers);
+  console.log('📦 Data:', config.data);
+  console.log('📦 Params:', config.params);
+
   return config;
 });
 
 // Interceptor: Xử lý lỗi 401
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(`📥 [${response.status}] ${response.config.url}`, response.data);
+    return response;
+  },
   (error) => {
+    console.error('❌ API Error:', error.response?.status, error.response?.data);
+    console.error('❌ Config:', error.config);
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_user');
