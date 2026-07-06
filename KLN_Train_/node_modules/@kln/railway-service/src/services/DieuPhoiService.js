@@ -1,7 +1,9 @@
 const DieuPhoiRepo = require('../repositories/DieuPhoiRepository')
 const { vnDate, fmtDateVN, fmtTimeVN, timeToMinutes, calcDelayedTime } = require('../utils/dateUtils')
+const { serviceClient } = require('@kln/shared')
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
+
 
 const getDashboard = async () => {
   const today = vnDate(0)
@@ -158,6 +160,16 @@ const updateTrangThai = async (idChuyen, trangThai, ghiChu, nguoiTao) => {
       moTa: ghiChu || 'Hủy chuyến tàu',
       nguoiTao,
     })
+
+    // Báo cho khách đã có vé trên chuyến này biết (ThongBao trong app + email) —
+    // giống hệt luồng "Ghi nhận sự kiện" với loại 'cancel', vì hủy nhanh ở đây
+    // trước đó chỉ ghi log điều phối chứ chưa từng báo khách.
+    const chuyenInfo = await DieuPhoiRepo.findChuyenWithLichChay(idChuyen)
+    const soHieuTau = chuyenInfo?.LichChay?.Tau?.so_hieu || 'Chuyến tàu'
+    const tenGaDi = chuyenInfo?.LichChay?.GaDi?.ten_ga || ''
+    const ngayChay = chuyenInfo ? fmtDateVN(chuyenInfo.ngay_chay) : ''
+    const thongBao = _buildThongBao({ loaiSuKien: 'cancel', moTa: ghiChu, soHieuTau, tenGaDi, ngayChay, chuyen: chuyenInfo })
+    await _notifyAffectedCustomers(idChuyen, thongBao, 'cancel')
   }
 
   return { idChuyen: parseInt(idChuyen), trangThai }
@@ -194,9 +206,7 @@ const logSuKien = async (idChuyen, { loaiSuKien, moTa, delayPhut, idGaAnhHuong, 
   }
 
   const thongBao = _buildThongBao({ loaiSuKien, delayPhut, moTa, soHieuTau, tenGaDi, ngayChay, chuyen })
-  if (thongBao) {
-    await DieuPhoiRepo.notifyAffectedCustomers(idChuyen, { ...thongBao, loai: loaiSuKien }).catch(() => {})
-  }
+  await _notifyAffectedCustomers(idChuyen, thongBao, loaiSuKien)
 
   return { id: result?.id_dieu_phoi, message: result?.message || 'Ghi nhận sự kiện thành công' }
 }
@@ -226,9 +236,33 @@ const _buildThongBao = ({ loaiSuKien, delayPhut, moTa, soHieuTau, tenGaDi, ngayC
   return tieuDe && noiDung ? { tieuDe, noiDung } : null
 }
 
+// Báo cho khách có vé còn hiệu lực trên chuyến bị ảnh hưởng: (1) ThongBao
+// trong app — chỉ tới tài khoản đã đăng nhập (ghi thẳng SQL, ngoại lệ kiến
+// trúc đã có từ trước); (2) email thật — tới MỌI đơn có email_dat_cho, kể cả
+// khách đặt vé không cần tài khoản (guest). Dùng chung cho logSuKien và
+// updateTrangThai (khi hủy nhanh), cả 2 nơi đều không nên chặn response nếu
+// bước thông báo lỗi.
+const _notifyAffectedCustomers = async (idChuyen, thongBao, loaiSuKien) => {
+  if (!thongBao) return
+
+  // ThongBao.loai bị ràng buộc CHECK CK_TB_Loai chỉ nhận he_thong/khuyen_mai/
+  // doi_ve/huy_ve/dat_ve — loaiSuKien (delay/cancel/maintenance/info) không
+  // nằm trong danh sách này nên phải quy về 'he_thong'.
+  await DieuPhoiRepo.notifyAffectedCustomers(idChuyen, { ...thongBao, loai: 'he_thong' }).catch(() => {})
+
+  const emails = await DieuPhoiRepo.getAffectedEmails(idChuyen).catch(() => [])
+  await Promise.allSettled(emails.map(e => serviceClient.post('notification', '/internal/send-event-email', {
+    email: e.email_dat_cho,
+    hoTen: e.ho_ten_lien_lac,
+    tieuDe: thongBao.tieuDe,
+    noiDung: thongBao.noiDung,
+    maDatCho: e.ma_dat_cho,
+  })))
+}
+
 // ─── Quản lý toa ──────────────────────────────────────────────────────────────
 
-const addToaChuyen = async (idChuyen, { soToaThuTu, idLoaiToa, soGheToidDa }) => {
+const addToaChuyen = async (idChuyen, { soToaThuTu, idLoaiToa }) => {
   if (!soToaThuTu || !idLoaiToa) throw { status: 400, message: 'Thiếu soToaThuTu hoặc idLoaiToa' }
 
   const loaiToa = await DieuPhoiRepo.findLoaiToaById(idLoaiToa)
@@ -239,9 +273,11 @@ const addToaChuyen = async (idChuyen, { soToaThuTu, idLoaiToa, soGheToidDa }) =>
   const exists = await DieuPhoiRepo.findToaBySoToa(idChuyen, soToaThuTu)
   if (exists) throw { status: 400, message: `Toa số ${soToaThuTu} đã tồn tại trong chuyến này` }
 
+  // Số chỗ tối đa luôn lấy theo cấu hình cố định của loại toa — không cho
+  // điều chỉnh riêng theo từng chuyến.
   const tc = await DieuPhoiRepo.createToaChuyen({
     idChuyen, soToaThuTu, idLoaiToa,
-    soGheToidDa: soGheToidDa ? parseInt(soGheToidDa) : loaiToa.so_cho_toi_da,
+    soGheToidDa: loaiToa.so_cho_toi_da,
   })
 
   await DieuPhoiRepo.dongBoGheChuyen(idChuyen)
@@ -249,7 +285,7 @@ const addToaChuyen = async (idChuyen, { soToaThuTu, idLoaiToa, soGheToidDa }) =>
   return { idToaChuyen: tc.id_toa_chuyen }
 }
 
-const updateToaChuyen = async (toaId, { soToaThuTu, idLoaiToa, soGheToidDa, idChuyen }) => {
+const updateToaChuyen = async (toaId, { soToaThuTu, idLoaiToa, idChuyen }) => {
   let tc = await DieuPhoiRepo.findToaById(toaId)
 
   if (!tc && idChuyen && soToaThuTu) {
@@ -265,8 +301,18 @@ const updateToaChuyen = async (toaId, { soToaThuTu, idLoaiToa, soGheToidDa, idCh
 
   const newSoToa = soToaThuTu ? parseInt(soToaThuTu) : tc.so_toa_thu_tu
   const newIdLoai = idLoaiToa ? parseInt(idLoaiToa) : tc.id_loai_toa
-  const newSoGhe = soGheToidDa ? parseInt(soGheToidDa) : tc.so_ghe_toi_da
   const oldSoToa = tc.so_toa_thu_tu
+  const oldIdLoai = tc.id_loai_toa   // lưu lại TRƯỚC khi update — tc.update() sẽ mutate luôn instance này
+  const doiLoaiToa = newIdLoai !== oldIdLoai
+
+  // Số chỗ tối đa không cho điều chỉnh thủ công — nếu đổi loại toa thì lấy
+  // lại đúng số chỗ cố định của loại toa mới, còn lại giữ nguyên giá trị cũ.
+  let newSoGhe = tc.so_ghe_toi_da
+  if (doiLoaiToa) {
+    const loaiToaMoi = await DieuPhoiRepo.findLoaiToaById(newIdLoai)
+    if (!loaiToaMoi) throw { status: 404, message: 'Loại toa không tồn tại' }
+    newSoGhe = loaiToaMoi.so_cho_toi_da
+  }
 
   if (newSoToa !== oldSoToa) {
     const dup = await DieuPhoiRepo.findToaBySoToa(tc.id_chuyen, newSoToa)
@@ -284,6 +330,15 @@ const updateToaChuyen = async (toaId, { soToaThuTu, idLoaiToa, soGheToidDa, idCh
   }
 
   await DieuPhoiRepo.updateToa(tc, { newSoToa, newIdLoai, newSoGhe })
+
+  // Đổi loại toa → cấu hình ghế vật lý (GheChuyen) của toa này không còn
+  // đúng nữa (khác số ghế/loại ghế của loại toa cũ) — phải sinh lại từ đầu
+  // theo đúng loại toa mới, nếu không giao diện chọn tàu/chọn chỗ vẫn hiển
+  // thị số ghế cũ (đọc từ GheChuyen đã lỗi thời).
+  if (doiLoaiToa) {
+    await DieuPhoiRepo.resetGheChuyenForToa(tc.id_chuyen, newSoToa, newIdLoai)
+  }
+
   return { idToaChuyen: tc.id_toa_chuyen }
 }
 
@@ -312,21 +367,20 @@ const reorderToa = async (idChuyen, order) => {
 
 const getLichChayList = async (idTau) => DieuPhoiRepo.getLichChayList(idTau || null)
 
-const createLichChay = async ({ idTau, idGaDi, idGaDen, gioKhoiHanh, gioDuKienDen, thuTrongTuan }) => {
+const createLichChay = async ({ idTau, idGaDi, idGaDen, gioKhoiHanh, gioDuKienDen }) => {
   if (!idTau || !idGaDi || !idGaDen || !gioKhoiHanh || !gioDuKienDen) {
     throw { status: 400, message: 'Thiếu thông tin bắt buộc' }
   }
-  const lc = await DieuPhoiRepo.createLichChay({ idTau, idGaDi, idGaDen, gioKhoiHanh, gioDuKienDen, thuTrongTuan })
+  const lc = await DieuPhoiRepo.createLichChay({ idTau, idGaDi, idGaDen, gioKhoiHanh, gioDuKienDen })
   return { idLichChay: lc.id_lich_chay }
 }
 
-const updateLichChay = async (idLichChay, { gioKhoiHanh, gioDuKienDen, thuTrongTuan, idTau, idGaDi, idGaDen }) => {
+const updateLichChay = async (idLichChay, { gioKhoiHanh, gioDuKienDen, idTau, idGaDi, idGaDen }) => {
   const lc = await DieuPhoiRepo.findLichChayById(idLichChay)
   if (!lc) throw { status: 404, message: 'Không tìm thấy lịch chạy' }
   await DieuPhoiRepo.updateLichChay(lc, {
     gio_khoi_hanh: gioKhoiHanh ?? lc.gio_khoi_hanh,
     gio_du_kien_den: gioDuKienDen ?? lc.gio_du_kien_den,
-    thu_trong_tuan: thuTrongTuan ?? lc.thu_trong_tuan,
     id_tau: idTau ? parseInt(idTau) : lc.id_tau,
     id_ga_di: idGaDi ? parseInt(idGaDi) : lc.id_ga_di,
     id_ga_den: idGaDen ? parseInt(idGaDen) : lc.id_ga_den,

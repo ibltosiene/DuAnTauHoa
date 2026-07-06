@@ -358,6 +358,21 @@ const notifyAffectedCustomers = async (idChuyen, { tieuDe, noiDung, loai }) => {
   }
 }
 
+// Lấy email liên lạc của các đơn đặt vé còn hiệu lực trên một chuyến — dùng để
+// gửi email báo sự kiện (kể cả đơn của khách đặt vé không cần tài khoản), khác
+// với notifyAffectedCustomers ở trên chỉ báo ThongBao trong app cho tài khoản.
+const getAffectedEmails = async (idChuyen) => {
+  return sequelize.query(
+    `SELECT DISTINCT ddv.email_dat_cho, ddv.ho_ten_lien_lac, ddv.ma_dat_cho
+     FROM Ve v WITH (NOLOCK)
+     JOIN DonDatVe ddv WITH (NOLOCK) ON ddv.id_don_dat_ve = v.id_don_dat_ve
+     WHERE v.id_chuyen = ${parseInt(idChuyen)}
+       AND v.trang_thai NOT IN ('da_huy','da_doi')
+       AND ddv.email_dat_cho IS NOT NULL`,
+    { type: sequelize.QueryTypes.SELECT }
+  )
+}
+
 // ─── Quản lý ToaChuyen ────────────────────────────────────────────────────────
 
 const triggerEnsureToaChuyen = async (idChuyen) => {
@@ -589,7 +604,7 @@ module.exports = {
   getChuyenTauList, demVeTheoListChuyen, getSuKienMoiNhatTheoListChuyen,
   findChuyenById, findChuyenWithLichChay, ensureAndGetToaChuyen,
   getEventsByChuyen, demVeTheoToa, getLichTrinhByLichChay,
-  updateTrangThaiChuyen, ghiSuKien, capNhatLichTrinhTheoDelay, notifyAffectedCustomers,
+  updateTrangThaiChuyen, ghiSuKien, capNhatLichTrinhTheoDelay, notifyAffectedCustomers, getAffectedEmails,
   triggerEnsureToaChuyen, findToaById, findToaBySoToa,
   demVeTheoTuaToa, demVeTheoChuyen,
   createToaChuyen, dongBoGheChuyen, hoanDoiToa, updateToa, reorderToa,

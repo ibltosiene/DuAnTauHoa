@@ -129,5 +129,55 @@ const sendBookingConfirmation = async (toEmail, bookingData) => {
   console.log(`[EMAIL] Đã gửi email xác nhận đến ${toEmail} — MessageId: ${info.messageId}`)
   return info
 }
+/**
+ * Tạo nội dung HTML email báo sự kiện chuyến tàu (trễ giờ/hủy chuyến/bảo trì...).
+ */
+const buildTripEventEmailHTML = ({ hoTen, tieuDe, noiDung, maDatCho }) => `
+  <!DOCTYPE html>
+  <html lang="vi">
+  <head><meta charset="UTF-8"></head>
+  <body style="margin:0; padding:0; background:#f4f6f8; font-family:'Segoe UI',Arial,sans-serif;">
+    <div style="max-width:640px; margin:20px auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      <div style="background:linear-gradient(135deg,#8C1D19,#c0392b); padding:24px 32px; text-align:center;">
+        <h1 style="color:#fff; margin:0; font-size:22px;">KLN TRAIN</h1>
+        <p style="color:#f5d9d7; margin:6px 0 0; font-size:14px;">Thông báo về chuyến tàu của bạn</p>
+      </div>
+      <div style="padding:24px 32px;">
+        <p style="font-size:16px; color:#333;">Xin chào <strong>${hoTen || 'Quý khách'}</strong>,</p>
+        <div style="background:#fff8e1; border-left:4px solid #f57f17; padding:14px 18px; margin:16px 0; border-radius:0 6px 6px 0;">
+          <p style="margin:0 0 6px; font-weight:bold; color:#8C1D19; font-size:16px;">${tieuDe}</p>
+          <p style="margin:0; color:#555; line-height:1.6;">${noiDung}</p>
+        </div>
+        ${maDatCho ? `<p style="color:#555;">Mã đặt chỗ liên quan: <strong style="color:#1a6496; letter-spacing:1px;">${maDatCho}</strong></p>` : ''}
+        <p style="color:#555; line-height:1.6;">Vui lòng vào mục "Tra cứu đặt chỗ" trên hệ thống KLN Train để xem chi tiết, hoặc liên hệ tổng đài nếu cần hỗ trợ.</p>
+      </div>
+      <div style="background:#f4f6f8; padding:16px 32px; text-align:center; border-top:1px solid #e0e0e0;">
+        <p style="color:#999; font-size:12px; margin:0;">
+          Email này được gửi tự động từ hệ thống KLN Train. Vui lòng không trả lời email này.
+        </p>
+        <p style="color:#999; font-size:12px; margin:4px 0 0;">© 2025 KLN Train — Hệ thống quản lý vé tàu hỏa</p>
+      </div>
+    </div>
+  </body>
+  </html>`
 
-module.exports = { sendBookingConfirmation }
+/**
+ * Gửi email báo sự kiện chuyến tàu (trễ giờ/hủy chuyến/bảo trì...) — gọi bởi
+ * railway-service khi điều phối viên ghi sự kiện hoặc hủy chuyến.
+ * @param {string} toEmail
+ * @param {object} data - { hoTen, tieuDe, noiDung, maDatCho }
+ */
+const sendTripEventEmail = async (toEmail, data) => {
+  const mailOptions = {
+    from: process.env.MAIL_FROM || `"KLN Train" <${process.env.MAIL_USER}>`,
+    to: toEmail,
+    subject: data.tieuDe || 'Thông báo về chuyến tàu của bạn',
+    html: buildTripEventEmailHTML(data),
+  }
+
+  const info = await transporter.sendMail(mailOptions)
+  console.log(`[EMAIL] Đã gửi email báo sự kiện chuyến tàu đến ${toEmail} — MessageId: ${info.messageId}`)
+  return info
+}
+
+module.exports = { sendBookingConfirmation, sendTripEventEmail }
